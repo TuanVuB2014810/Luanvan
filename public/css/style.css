@@ -1,0 +1,695 @@
+body {
+    font-family: "Roboto", sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    height: 100vh;
+    font-size: 16px;
+    display: block;
+}
+
+#header_nav {
+    padding-left: 13rem;
+}
+
+#header>nav,
+.menu {
+    background-color: #c5122a;
+    color: white;
+}
+
+#nav_icon {
+    padding: 2px;
+    margin: 5px;
+    color: orange;
+}
+
+.navbar_ul_search,
+.nav_manager_post {
+    padding-left: 8rem;
+}
+
+.li-avt {
+    height: 41.5px;
+    /* width: 100px; */
+}
+
+#footer {
+    color: white;
+    margin: 10px;
+    padding: 10px;
+    background-color: #c5122a;
+    font-size: 17px;
+    margin-top: 200px;
+}
+
+#footer-center {
+    border-left: 1px double white;
+    border-right: 1px double white;
+}
+
+.tit_footer {
+    border-bottom: solid 1px white;
+    width: 150px;
+    text-align: center;
+}
+
+.sp {
+    border: solid 1px rgb(145, 200, 145);
+    background-color: white;
+    color: black;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 10px 10px 5px rgb(220, 215, 215);
+    width: 18rem;
+}
+
+.indexsec>h3 {
+    color: white;
+    background-color: #EB96AA;
+}
+
+.banner_img {
+    width: 30px;
+}
+
+.error {
+    font-size: 18px;
+    color: red;
+}
+
+.success,
+.success_msg {
+    font-size: 18px;
+}
+
+.success_msg {
+    font-size: 26px;
+    color: green;
+}
+
+.cart_btnpay {
+    float: right;
+}
+
+.warn {
+    color: orange;
+    font-size: 1em;
+}
+
+.icon_favorite {
+    font-size: 50px;
+}
+
+#navbarNav,
+.navbar-nav {
+    display: flex;
+    list-style: none;
+}
+
+.navbar-nav li:last-child {
+    margin-right: 0;
+}
+
+#quan_com {
+    display: none;
+}
+
+.msg {
+    text-align: center;
+    font-size: 1.5em;
+    color: rgb(221, 83, 83);
+}
+
+.login_ttk {
+    width: 100%;
+}
+
+.form_login {
+    margin-left: 7px;
+}
+
+.id {
+    border-radius: 5px;
+}
+
+.submit_login {
+    width: 35%;
+}
+
+.dangnhap,
+.ttk {
+    border: 1px solid gray;
+    padding: 5px;
+    margin: 5px;
+    width: 23rem;
+    border-radius: 5px;
+    box-shadow: 10px 10px 5px rgb(220, 215, 215);
+}
+
+.price {
+    color: #dc3545;
+}
+
+.productName {
+    font-size: 22px;
+}
+
+.td_chitiet {
+    margin-right: 2.2px;
+}
+
+a.nav-link:hover,
+a.sp_a:hover::before {
+    background-color: white;
+    border-radius: 5px;
+    color: #c5122a;
+}
+
+a.sp_a {
+    position: relative;
+    display: inline-block;
+}
+
+a.sp_a>img {
+    display: block;
+}
+
+.table_cus {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.div_success {
+    text-align: center;
+}
+
+.icon-heart>i {
+    color: red;
+    font-size: 25px;
+}
+
+.noUi-tooltip {
+    display: inline-block;
+    border: 1px solid #ccc;
+    padding: 5px;
+    background: white;
+    font-size: 11px;
+    border-radius: 5px;
+}
+
+.slider-container::-webkit-scrollbar {
+    display: none;
+}
+
+.thumbnail-container {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+    overflow: hidden;
+}
+
+.thumbnail-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    transition: background 0.3s ease;
+}
+
+.thumbnail-container:hover::before {
+    background: rgba(0, 0, 0, 0);
+}
+
+.thumbnail-container img {
+    width: 120px;
+    height: 120px;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail-container:hover img {
+    transform: scale(1.1);
+    border: 2px solid #da8524;
+}
+
+.avatar-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.rounded-avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+}
+
+.rounded-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rating-stars {
+    font-size: 24px;
+}
+
+.fa-star {
+    cursor: pointer;
+    color: #dddddd;
+    transition: color 0.3s;
+}
+
+.star:hover,
+.fa-star.active {
+    color: orange;
+}
+
+.danhgia_textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.danhgia {
+    background-color: #3498db;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.danhgia:hover {
+    background-color: #2980b9;
+}
+
+.section_evaluate {
+    border: 1px rgb(177, 170, 170) solid;
+    border-radius: 5px;
+}
+
+.cart-status {
+    border: 1px solid #ddd;
+    overflow: hidden;
+    margin-bottom: 20px;
+    height: 300px;
+}
+
+.card-img-top-status {
+    height: 50%;
+    width: 300px;
+    object-fit: cover;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img_chinh {
+    width: 80%;
+    height: 400px;
+    object-fit: cover;
+    max-width: 100%;
+}
+
+.card-body-status {
+    padding: 5px;
+}
+
+.text-dt {
+    color: gray;
+}
+
+.text-price {
+    color: #d22839;
+    font-weight: bold;
+}
+
+.btn-action {
+    height: 100%;
+    width: auto; /* Sử dụng chiều rộng tự động để các nút hiển thị đều nhau */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-action-show {
+    width: auto; /* Sử dụng chiều rộng tự động để các nút hiển thị đều nhau */
+}
+
+.btn-action-delete {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* .header_admin>nav, */
+.menu {
+    background-color: white;
+    color: black;
+}
+.mau_khung{
+    color: white;
+    background-color: #007bff;
+    padding: 100px 0px 10px 5px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+}
+.mau_khung > h3 { 
+    padding: 5px;
+}
+.header_admin {
+    height: 120px;
+    background: linear-gradient(135deg, #8a2be2, #00ced1);
+}
+
+
+
+
+.btn_menu:hover {
+    font-size: 18px;
+    background-color: white;
+    color: #16167c;
+
+}
+.btn_menu.active {
+            background-color: #007bff; /* Màu nền xanh dương */
+            color: #ffffff; /* Màu chữ trắng */
+        }
+.btn_menu:active {
+    font-size: 18px;
+    background-color: white;
+    /* color: rgb(161, 24, 24); */
+}
+
+.navbar {
+    z-index: 10000000;
+}
+
+.div_avt {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+}
+.div_avt_profile{
+    padding-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+}
+.avt_img {
+    object-fit: cover;
+    height: 200px;
+    width: 200px;
+    border-radius: 50px;
+}
+
+.div_avt_svg {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #ccc;
+}
+
+.avt_svg {
+    position: absolute;
+    bottom: 5px;
+    right: 18px;
+    width: 45px;
+    height: 45px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.profile_name {
+    padding-top: 0px;
+}
+
+.no-underline {
+    text-decoration: none;
+}
+
+.btn_login {
+    border: 1px black solid;
+    margin-left: 2px;
+    margin-bottom: 5px;
+}
+
+a>.btn_login:hover {
+    border: 1px black solid;
+    background-color: #f4f4f4;
+}
+
+.fixed-top {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+main {
+    margin-top: 100px;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+main {
+    min-height: calc(100% - 400px);
+    position: relative;
+}
+
+#suggestion-box {
+    list-style-type: none;
+}
+
+.search_div {
+    padding: 5px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+#drop_profile {
+    border-radius: 10px;
+}
+
+.a_icon {
+    color: white;
+}
+
+.main_admin {
+    margin-top: 0px;
+}
+
+.select_tk {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.select_tk select,.select_tk button {
+    width: 12%;
+    margin: 5px;
+}
+
+.cart_tk {
+    padding: 0px;
+    margin: 5px;
+}
+
+.card_header {
+    background-color:#9e45f2;
+    color: white;
+    text-align: center;
+    margin: 5px;
+}
+
+.admin_tk {
+    display: flex;
+    justify-content: space-between;
+}
+
+#wrapper {
+    background-image: url('{{ asset("public/images/nen_dang_nhap.jpg") }}');
+}
+
+select.form-select option:hover {
+    background-color: #2cc558;
+}
+
+.btn_profile_cum {
+    border-radius: 100px;
+    padding: 2px 0px;
+}
+
+.img_loaihinh:hover {
+    background-color: #c5122a;
+    border-radius: 50%;
+    color: white;
+}
+
+.img_loaihinh {
+    transition: border-radius 0.3s ease;
+}
+
+.a_login_gg:hover,
+.a_login_fb:hover {
+    background-color: #c5122a;
+    color: white;
+}
+
+#total_start {
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+}
+
+#total_start>.text {
+    padding-top: 4px;
+}
+
+#total_start>.messeva {
+    padding-top: 10px;
+    font-size: 15px;
+    color: #1d23d3;
+    padding-left: 20px;
+}
+.nav-item{
+    width: 10em;
+}
+.profile_nav{
+    width: 12em;
+}
+.nav-item.active::after {
+    content: "";
+    display: block;
+    width:100%;
+    border-bottom: 2px solid white;
+    margin-top: 5px;
+}
+
+.running-border {
+    position: relative;
+    margin-top: 20px;
+    padding-bottom: 5px;
+}
+
+.running-border::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 10%;
+    height: 3px;
+    background-color: rgb(255, 255, 255);
+    animation: running-border-animation 2s linear infinite;
+    z-index: 2;
+}
+
+@keyframes running-border-animation {
+    0% {
+        left: -10%;
+    }
+
+    100% {
+        left: 90%;
+    }
+}
+
+.running-border::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: red;
+    z-index: 1;
+}
+
+.inbox {
+    border: 1px dark solid;
+}
+
+.userListBox {
+    border: 1px rgb(15, 15, 31) solid;
+    height: 400px;
+}
+
+.boxChat {
+    border: 1px rgb(15, 15, 31) solid;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    display: block;
+    clear: both;
+}
+
+#messages {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.message.left {
+    background-color: #e6dddd;
+    float: left;
+}
+
+.message.right {
+    background-color: #2a6cc4;
+    float: right;
+}
+/* CSS cho thanh trượt giá */
+#slider {
+    width: 80%; /* Đặt chiều rộng của thanh trượt */
+    margin: 0 auto; /* Căn giữa thanh trượt */
+    /* color: #c5122a; */
+}
+
+/* CSS cho thanh trượt diện tích */
+#slider_dt {
+    width: 80%; /* Đặt chiều rộng của thanh trượt */
+    margin: 0 auto; /* Căn giữa thanh trượt */
+    color: #c5122a;
+    /* background-color: #c51a1a; */
+}
+
+
+a.navbarli:hover{
+   background-color: white;
+    color: #007bff;
+    border-radius: 5px;
+  
+}
+.section_qlbaidang > div {
+    border-radius: 10px;
+}
