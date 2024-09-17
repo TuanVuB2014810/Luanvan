@@ -17,8 +17,8 @@ class PagesController extends Controller
         return view('user.index')->with('post',$post);
     }
     public function about(){
-        $name = 'hai dep traI';
-        $names =array('hai','thanh','tran');
+        $name = 'vu';
+        $names =array('tran','tuan','vu');
         return view('user.about',['names'=>$names,], compact('name'));
     }
     public function phongtro(){
