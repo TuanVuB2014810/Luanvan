@@ -23,7 +23,7 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('admin'),
             'phone' => '0984848343',
             'city' => 'Cần thơ',
-            'date_create' =>'2024-03-11 15:47:59',
+            'date_create' =>'2024-08-30 15:47:59',
             'role' => 1,
             ],
             [
@@ -32,7 +32,7 @@ class UsersTableSeeder extends Seeder
             'avt' =>'image1706281575_1853.jpg',
             'password' => Hash::make('123456'),
             'phone' => '0984848484',
-            'date_create' =>'2024-03-11 15:47:59',
+            'date_create' =>'2024-08-30 15:47:59',
             'city' => 'Vinh',
             'role' =>0,
                 ],

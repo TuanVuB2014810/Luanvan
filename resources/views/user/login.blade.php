@@ -32,7 +32,7 @@
                 <h6 class="text-center mt-4">Hoặc đăng nhập bằng</h6>
                 <hr class="my-2">
                 <div class="row d-fex justify-content-center">
-                    <a class="btn a_login_gg col-5 btn_login mocked-styled-18 b10u9umr"  href="{{ route('auth.google') }}">
+                    <a class="btn a_login_gg btn_login mocked-styled-18 b10u9umr"  href="{{ route('auth.google') }}">
                         <svg class="" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg"> 
                             <path
                                 d="M19.2992 10.1951C19.2992 9.47569 19.2395 8.95069 19.1102 8.40625H10.7031V11.6534H15.6379C15.5384 12.4604 15.0012 13.6757 13.8072 14.4923L13.7905 14.601L16.4487 16.6133L16.6328 16.6312C18.3242 15.1048 19.2992 12.859 19.2992 10.1951Z"
@@ -48,14 +48,14 @@
                                 fill="#EB4335"></path>
                         </svg><b class="mx-2">Google</b>
                     </a>
-                    <a class="btn  a_login_fb col-6 btn_login mocked-styled-18 b10u9umr" href="{{ route('auth.facebook') }}">
+                    <!-- <a class="btn  a_login_fb col-6 btn_login mocked-styled-18 b10u9umr" href="{{ route('auth.facebook') }}">
                         <svg class="" width="20" height="20" viewBox="0 0 20 20" fill="none" 
                             xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M10.0005 1.66797C5.3988 1.66797 1.66797 5.32786 1.66797 9.84202C1.66797 13.9213 4.71464 17.3024 8.6988 17.918V12.2054H6.58214V9.84202H8.6988V8.0411C8.6988 5.99084 9.94297 4.86025 11.8455 4.86025C12.7571 4.86025 13.7121 5.01966 13.7121 5.01966V7.02986H12.6588C11.6255 7.02986 11.3021 7.66096 11.3021 8.3076V9.84038H13.6113L13.2421 12.2037H11.3021V17.9163C15.2863 17.304 18.333 13.9221 18.333 9.84202C18.333 5.32786 14.6021 1.66797 10.0005 1.66797Z"
                                 fill="#2561CF"></path>
                         </svg><b class="mx-2">Facebook</b>
-                    </a>
+                    </a> -->
                     <p class=" px-1 py-1 col-11"> Chưa có tài khoản? <a href="/register" class="no-underline"> Đăng ký tài khoản
                         </a></p>
                 </div>

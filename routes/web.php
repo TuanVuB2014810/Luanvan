@@ -82,7 +82,7 @@ Route::middleware('avatar')->group(function () {
     });
     //chi tiet bai dang user
     Route::get('/chitiet_baidang/{id}', [PostsController::class,'Post_detail_user'])->name('bai_dang_user');
-    
+    Route::get('/get-total-rating/{phongtro_id}', [PostsController::class, 'getTotalRating'])->name('getTotalRating');
     //tim kiem
     Route::get('/tim-kiem', [PostsController::class,'index']);
     Route::get('/tim-kiem-loai-hinh-thue/{type}', [PostsController::class,'findPostType']);
@@ -105,7 +105,7 @@ route::middleware('auth')->group(function (){
     Route::get('/edit-profile-password', [UserController::class,'editProfilePass']);
     Route::PUT('/edit-profile-password', [UserController::class,'updateProfilePass']);
     // bai yeu thich
-    Route::get('/them-yeu-thich/{id}', [PostsController::class,'AddFavorite']);
+    Route::post('/them-yeu-thich/{id}', [PostsController::class,'AddFavorite'])->name('add.favorite');
     Route::get('/wishList', [PostsController::class,'wishListUser']);
 });
   

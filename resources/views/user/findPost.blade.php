@@ -139,38 +139,37 @@
                 <form action="/tim-kiem-phong-tro-theo-dien-tich" class="my-0 py-0 " method="post">
                     @csrf
                     @method('POST')
-                    <input type="hidden" name="mindt" value="0">
-                    <input type="hidden" name="maxdt" value="15">
+                    <input type="hidden" name="mindt" value="15">
+                    <input type="hidden" name="maxdt" value="30">
                     <button type="submit_dt" class=" btn btn-light mt-1 my-1 py-1"> 15 - 30 m² </button>
                 </form>
                 <form action="/tim-kiem-phong-tro-theo-dien-tich" class="my-0 py-0 " method="post">
                     @csrf
                     @method('POST')
-                    <input type="hidden" name="mindt" value="0">
-                    <input type="hidden" name="maxdt" value="15">
+                    <input type="hidden" name="mindt" value="30">
+                    <input type="hidden" name="maxdt" value="45">
                     <button type="submit_dt" class=" btn btn-light mt-1 my-1 py-1"> 30 - 45 m² </button>
                 </form>
                 <form action="/tim-kiem-phong-tro-theo-dien-tich" class="my-0 py-0 " method="post">
                     @csrf
                     @method('POST')
-                    <input type="hidden" name="mindt" value="0">
-                    <input type="hidden" name="maxdt" value="15">
+                    <input type="hidden" name="mindt" value="45">
+                    <input type="hidden" name="maxdt" value="60">
                     <button type="submit_dt" class=" btn btn-light mt-1 my-1 py-1"> 45 - 60 m² </button>
                 </form>
                 <form action="/tim-kiem-phong-tro-theo-dien-tich" class="my-0 py-0 " method="post">
                     @csrf
                     @method('POST')
-                    <input type="hidden" name="mindt" value="0">
-                    <input type="hidden" name="maxdt" value="15">
+                    <input type="hidden" name="mindt" value="60">
+                    <input type="hidden" name="maxdt" value="75">
                     <button type="submit_dt" class=" btn btn-light mt-1 my-1 py-1 btn-block"> 60 - 75 m² </button>
                 </form>
                 <form action="/tim-kiem-phong-tro-theo-dien-tich" class="my-0 py-0 " method="post">
                     @csrf
                     @method('POST')
-                    <input type="hidden" name="mindt" value="0">
-                    <input type="hidden" name="maxdt" value="15">
-                    <button type="button" class="btn btn-light mt-1 my-1 py-1 btn-block">75 - 100 m²</button>
-
+                    <input type="hidden" name="mindt" value="75">
+                    <input type="hidden" name="maxdt" value="100">
+                    <button type="submit_dt" class=" btn btn-light mt-1 my-1 py-1 btn-block"> 75 - 100 m² </button>
                 </form>
                 <form action="/tim-kiem-phong-tro-theo-dien-tich" class="my-0 py-0 " method="post">
                     @csrf
@@ -268,7 +267,6 @@
                     <h6 class="card-subtitle mb-2  text-price">{{ $item->gia }}</h6>
                 </div>
             </div>
-
             @endforeach
         </div>
         @else

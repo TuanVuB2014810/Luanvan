@@ -36,24 +36,21 @@
                 {{ $post->huyen }}, {{ $post->tinh }}</p>
 
             <div class="d-flex justify-content-between align-items-center">
-                <p> <i class="fa-solid fa-clock fa-lg" style="color: #c5122a;"></i> Đăng {{ $time }}</p>
-                <div class="d-flex d-flex align-items-center">
-                    <a href="/them-yeu-thich/{{ $post->maphong }}" class="text-danger  mx-2 icon-heart">
-                        @if(Auth::check() && $listwish)
-
-                        @if($listwish->yeuthich == 0)
+            <p> <i class="fa-solid fa-clock fa-lg" style="color: #c5122a;"></i> Đăng {{ $time }}</p>
+            <div class="d-flex d-flex align-items-center">
+            <a href="javascript:void(0);" data-id="{{ $post->maphong }}" class="text-danger mx-2 icon-heart toggle-favorite">
+                @if(Auth::check() && $listwish)
+                    @if($listwish->yeuthich == 1)
+                        <i class="fa-solid fa-heart px-1"></i> 
+                    @else
                         <i class="fa-regular fa-heart px-1"></i>
-                        @else
-                        <i class="fa-solid fa-heart px-1"></i>
-                        @endif
-                        @else
-                        <i class="fa-regular fa-heart px-1"></i>
-                        @endif
-
-                    </a>
-                    <p class="mb-0 ml-2"> Yêu thích</p>
-                </div>
-
+                    @endif
+                @else
+                    <i class="fa-regular fa-heart px-1"></i>
+                @endif
+            </a>
+                <p class="mb-0 ml-2">Yêu thích</p>
+            </div>
             </div>
         </div>
 
@@ -85,63 +82,61 @@
             </script>
             @endif
             <div class="total_evalute">
-                <h4 class="p-3 "><b>Đánh giá {{ $post->content }}</b></>
-                    <div class="rating-stars-show pt-2" id="total_start">
-                        <span class="px-2 text">{{ $total_rating->average_rating }}</span>
-                        <span class="fa fa-star total_show py-1"></span>
-                        <span class="fa fa-star total_show py-1"></span>
-                        <span class="fa fa-star total_show py-1"></span>
-                        <span class="fa fa-star total_show py-1"></span>
-                        <span class="fa fa-star total_show py-1"></span>
-                        <span class="messeva"> {{ $total_rating->total_ratings }} đánh giá</span>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const ratingStarsShow = document.getElementById('total_start');
-                            const starsShow = ratingStarsShow.querySelectorAll('.total_show');
-                            const ratingValue = parseFloat("{{ $total_rating->average_rating }}");
-                            showStars(ratingValue);
+                <h4 class="p-3"><b>Đánh giá {{ $post->content }}</b></h4>
+                <div class="rating-stars-show pt-2" id="total_start">
+                    <!-- Hiển thị sao trung bình và tổng số đánh giá -->
+                    <span class="px-2 text">{{ round($total_rating->average_rating, 1) }}</span>
+                    <span class="fa fa-star total_show py-1"></span>
+                    <span class="fa fa-star total_show py-1"></span>
+                    <span class="fa fa-star total_show py-1"></span>
+                    <span class="fa fa-star total_show py-1"></span>
+                    <span class="fa fa-star total_show py-1"></span>
+                    <span class="messeva"> {{ $total_rating->total_ratings }} đánh giá</span>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const ratingStarsShow = document.getElementById('total_start');
+                        const starsShow = ratingStarsShow.querySelectorAll('.total_show');
+                        const ratingValue = parseFloat("{{ $total_rating->average_rating }}"); // Lấy giá trị rating từ PHP
 
-                            function showStars(rating) {
-                                const fullStars = Math.floor(rating); // Số nguyên của xếp hạng
-                                const halfStar = (rating % 1 !== 0); // Kiểm tra xem có nửa sao không
-                                starsShow.forEach((star, i) => {
-                                    if (i < fullStars) {
-                                        star.classList.add('active');
-                                        star.style.color = 'orange';
-                                    } else if (halfStar && i === fullStars) {
-                                        star.classList.add('active');
-                                        star.style.color = 'orange';
-                                        star.classList.add(
-                                            'fa-star-half-alt'); // Thêm class cho nửa sao
-                                    } else {
-                                        star.style.color = '#dddddd';
-                                    }
-                                });
-                            }
-                        });
-                    </script>
+                        showStars(ratingValue, starsShow); // Gọi hàm hiển thị sao
+
+                        function showStars(rating, stars) {
+                            const fullStars = Math.floor(rating); // Số nguyên của rating (số sao đầy)
+                            const halfStar = (rating % 1 !== 0); // Kiểm tra nếu có nửa sao
+
+                            stars.forEach((star, i) => {
+                                if (i < fullStars) {
+                                    // Nếu sao là đầy
+                                    star.classList.add('active');
+                                    star.style.color = 'orange';
+                                } else if (halfStar && i === fullStars) {
+                                    // Nếu có nửa sao
+                                    star.classList.add('active');
+                                    star.style.color = 'orange';
+                                    star.classList.add('fa-star-half-alt'); // Thêm class nửa sao
+                                } else {
+                                    // Những sao còn lại không được kích hoạt
+                                    star.style.color = '#dddddd';
+                                }
+                            });
+                        }
+                    });
+                </script>
+
 
             </div>
             <h3 class="text-center">Đánh Giá</h3>
-            <form action="/danhgia-phongtro/{{ $post->phongtro_id }}" method="POST" class="">
+            <form action="/danhgia-phongtro/{{ $post->phongtro_id }}" method="POST" id="ratingForm">
                 @csrf
                 @method('POST')
 
                 <div class="rating-stars text-center" id="ratingStars">
-                    <input type="hidden" name="star" id="star1">
+                    <input type="hidden" name="star" id="star">
                     <span class="fa fa-star rating_star" data-index="1"></span>
-
-                    <input type="hidden" name="star" id="star2">
                     <span class="fa fa-star rating_star" data-index="2"></span>
-
-                    <input type="hidden" name="star" id="star3">
                     <span class="fa fa-star rating_star" data-index="3"></span>
-
-                    <input type="hidden" name="star" id="star4">
                     <span class="fa fa-star rating_star" data-index="4"></span>
-
-                    <input type="hidden" name="star" id="star5">
                     <span class="fa fa-star rating_star" data-index="5"></span>
                 </div>
 
@@ -151,59 +146,62 @@
                 </div>
 
                 <div class="form-group text-center d-flex justify-content-center">
-                    <input type="submit" name="submit" class="btn btn-primary danhgia " value="Đánh giá"
-                        id="submitReview">
+                    <input type="submit" name="submit" class="btn btn-primary danhgia" value="Đánh giá" id="submitReview">
                 </div>
             </form>
+
 
         </div>
         <section class="bg-white text-dark mb-3 section_evaluate px-3">
 
             <h4 class="text-center pt-2"><strong>Các đánh giá về {{ $post->tenloai }}</strong></h4>
          
-            @if(isset($evaluates))
-                @foreach($evaluates as $index => $evaluate)
-                <div>
-                    <div href="" class="col-6 avatar-container li-avt ">
-                        <div class="rounded-avatar">
-                            @if(isset($evaluate->avt))
-                            <img src="{{ asset('images/'.$evaluate->avt) }}" alt="Avatar">
-                            @else
-                            <img src="{{ asset('images/nen.png') }}" alt="Avatar">
-                            @endif
+            <div id="reviews">
+                <!-- Các đánh giá hiện có sẽ được liệt kê tại đây -->
+                @if(isset($evaluates))
+                    @foreach($evaluates as $index => $evaluate)
+                    <div>
+                        <div href="" class="col-6 avatar-container li-avt ">
+                            <div class="rounded-avatar">
+                                @if(isset($evaluate->avt))
+                                <img src="{{ asset('images/'.$evaluate->avt) }}" alt="Avatar">
+                                @else
+                                <img src="{{ asset('images/nen.png') }}" alt="Avatar">
+                                @endif
+                            </div>
+                            <p class="col-6 mt-3"> <b>{{ $evaluate->name }}</b></p>
                         </div>
-                        <p class="col-6 mt-3"> <b>{{ $evaluate->name }}</b></p>
+                        <div class="rating-stars-show" id="ratingStars_show_{{ $index }}">
+                            <span class="fa fa-star show"></span>
+                            <span class="fa fa-star show"></span>
+                            <span class="fa fa-star show"></span>
+                            <span class="fa fa-star show"></span>
+                            <span class="fa fa-star show"></span>
+                        </div>
+                        <p>{{ $evaluate->comment }}</p>
                     </div>
-                    <div class="rating-stars-show" id="ratingStars_show_{{ $index }}">
-                        <span class="fa fa-star show"></span>
-                        <span class="fa fa-star show"></span>
-                        <span class="fa fa-star show"></span>
-                        <span class="fa fa-star show"></span>
-                        <span class="fa fa-star show"></span>
-                    </div>
-                    <p>{{ $evaluate->comment }}</p>
-                </div>
-                 <hr>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const ratingStarsShow = document.getElementById('ratingStars_show_{{ $index }}');
-                        const starsShow = ratingStarsShow.querySelectorAll('.show');
-                        const ratingValue = parseInt("{{ $evaluate->rating }}");
-                        showStars(ratingValue);
+                    <hr>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const ratingStarsShow = document.getElementById('ratingStars_show_{{ $index }}');
+                            const starsShow = ratingStarsShow.querySelectorAll('.show');
+                            const ratingValue = parseInt("{{ $evaluate->rating }}");
+                            showStars(ratingValue);
 
-                        function showStars(rating) {
-                            starsShow.forEach((star, i) => {
-                                star.classList.toggle('active', i < rating);
-                                star.style.color = (i < rating) ? 'orange' :
-                                    '#dddddd';
-                            });
-                        }
-                    });
-                </script>
-                @endforeach
-            @else 
-                <div class="text-center"> Chưa có đánh giá nào!!!</div>
-            @endif
+                            function showStars(rating) {
+                                starsShow.forEach((star, i) => {
+                                    star.classList.toggle('active', i < rating);
+                                    star.style.color = (i < rating) ? 'orange' : '#dddddd';
+                                });
+                            }
+                        });
+                    </script>
+                    @endforeach
+                @else 
+                    <div class="text-center"> Chưa có đánh giá nào!!!</div>
+                @endif
+            </div>
+
            
 
         </section>
@@ -367,6 +365,156 @@
             });
         }
     });
-</script>
+    $(document).ready(function () {
+    let selectedStar = 0;
 
+    // Xử lý khi người dùng chọn sao
+    $('.rating_star').on('click', function () {
+        selectedStar = $(this).data('index');
+        $('#star').val(selectedStar);  // Gán giá trị sao vào input ẩn
+
+        // Làm nổi bật các sao đến mức sao được chọn
+        $('.rating_star').removeClass('checked');
+        for (let i = 1; i <= selectedStar; i++) {
+            $(`.rating_star[data-index=${i}]`).addClass('checked');
+        }
+    });
+
+    // Gửi form qua AJAX
+    $('#ratingForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = {
+            _token: $('input[name=_token]').val(),
+            star: selectedStar,
+            comment: $('#comment').val(),
+        };
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    $('#ratingForm')[0].reset(); // Reset lại form
+                    $('.rating_star').removeClass('checked'); // Bỏ nổi bật các sao
+
+                    // Thêm đánh giá mới vào đầu danh sách các đánh giá hiện có
+                    let newReview = `
+                        <div>
+                            <div href="" class="col-6 avatar-container li-avt ">
+                                <div class="rounded-avatar">
+                                    <img src="/images/nen.png" alt="Avatar"> <!-- Giả sử người dùng không có avatar -->
+                                </div>
+                                <p class="col-6 mt-3"> <b>Bạn</b></p>
+                            </div>
+                            <div class="rating-stars-show" id="newRatingStars">
+                                <span class="fa fa-star"></span>
+                                <span class="fa fa-star"></span>
+                                <span class="fa fa-star"></span>
+                                <span class="fa fa-star"></span>
+                                <span class="fa fa-star"></span>
+                            </div>
+                            <p>${formData.comment}</p>
+                        </div>
+                        <hr>
+                    `;
+
+                    $('#reviews').prepend(newReview); // Thêm đánh giá mới
+
+                    // Hiển thị số sao cho đánh giá mới
+                    const starsShow = document.querySelectorAll('#newRatingStars .fa-star');
+                    showStars(selectedStar, starsShow);
+
+                    // Cập nhật số sao trung bình và tổng số đánh giá sau khi đánh giá thành công
+                    updateTotalRating();
+                } else if (response.status === 'exists') {
+                    alert(response.message);
+                } else if (response.status === 'unauthenticated') {
+                    alert(response.message);
+                    window.location.href = '/login'; // Điều hướng tới trang đăng nhập
+                }
+            },
+            error: function (error) {
+                alert('Đã xảy ra lỗi, vui lòng thử lại.');
+            }
+        });
+    });
+
+    // Hàm hiển thị sao (bao gồm cả nửa sao)
+    function showStars(rating, stars) {
+        const fullStars = Math.floor(rating); // Số nguyên của rating
+        const halfStar = (rating % 1 !== 0); // Kiểm tra nếu có nửa sao
+
+        stars.forEach((star, i) => {
+            star.classList.remove('fa-star', 'fa-star-half-alt', 'active'); // Xóa các lớp cũ
+
+            if (i < fullStars) {
+                star.classList.add('fa-star');
+                star.classList.add('active');
+                star.style.color = 'orange';
+            } else if (halfStar && i === fullStars) {
+                star.classList.add('fa-star-half-alt'); // Thêm lớp nửa sao
+                star.style.color = 'orange';
+            } else {
+                star.classList.add('fa-star');
+                star.style.color = '#dddddd';
+            }
+        });
+    }
+
+    // Hàm cập nhật tổng số sao và số lượng đánh giá
+    function updateTotalRating() {
+        const phongtro_id = '{{ $post->phongtro_id }}'; // Lấy ID của bài đăng
+
+        $.ajax({
+            url: `/get-total-rating/${phongtro_id}`,
+            type: 'GET',
+            success: function (data) {
+                if (data.average_rating !== undefined && data.total_ratings !== undefined) {
+                    $('#total_start .text').text(data.average_rating.toFixed(1));
+                    $('#total_start .messeva').text(`${data.total_ratings} đánh giá`);
+
+                    // Cập nhật hiển thị các sao
+                    const starsShow = document.querySelectorAll('#total_start .fa-star');
+                    showStars(data.average_rating, starsShow); // Gọi hàm showStars với giá trị mới
+                }
+            },
+            error: function (error) {
+                alert('Lỗi khi cập nhật tổng số đánh giá.');
+            }
+        });
+    }
+});
+
+
+
+</script>
+<script>
+    $(document).ready(function() {
+        $('.toggle-favorite').on('click', function(e) {
+            e.preventDefault();
+            var postId = $(this).data('id');
+            var heartIcon = $(this).find('i');
+
+            $.ajax({
+                url: "{{ route('add.favorite', ':id') }}".replace(':id', postId),
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        if (response.yeuthich == 1) {
+                            heartIcon.removeClass('fa-regular').addClass('fa-solid');
+                        } else {
+                            heartIcon.removeClass('fa-solid').addClass('fa-regular');
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>
 @endsection

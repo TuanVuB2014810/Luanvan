@@ -298,6 +298,27 @@ class PostsController extends Controller
             'total_rating' => $total_rating,
         ]);
     }
+    public function getTotalRating($phongtro_id)
+    {
+        // Lấy tổng số đánh giá và sao trung bình từ cơ sở dữ liệu
+        $totalRating = DB::table('evaluates')
+            ->where('phongtro_id', $phongtro_id)
+            ->selectRaw('COUNT(*) as total_ratings, AVG(rating) as average_rating')
+            ->first();
+
+        // Kiểm tra nếu có dữ liệu
+        if ($totalRating) {
+            return response()->json([
+                'average_rating' => $totalRating->average_rating,
+                'total_ratings' => $totalRating->total_ratings
+            ]);
+        } else {
+            return response()->json([
+                'average_rating' => 0,
+                'total_ratings' => 0
+            ]);
+        }
+    }
     private function usersameAddress($add)
     {
         $users = DB::table('users')
@@ -461,41 +482,39 @@ class PostsController extends Controller
         $tukhoa = $request->tukhoa;
         return view('user.findPost', ['find' => $posts, 'tukhoa' => $tukhoa]);
     }
-    public function AddFavorite($id)
-    {
-        $user_id = Auth::user();
-        if ($user_id) {
-            $post = Post::where('maphong', $id)->first();
+    public function AddFavorite(Request $request, $id)
+{
+    $user_id = Auth::user();
+    if ($user_id) {
+        $post = Post::where('maphong', $id)->first();
 
-            if ($post) {
-                $lwish = DB::table('listwish')
+        if ($post) {
+            $lwish = DB::table('listwish')
+                ->where('post_id', $post->id)
+                ->where('user_id', $user_id->user_id)
+                ->first();
+            
+            if ($lwish) {
+                $updatedStatus = ($lwish->yeuthich == 0) ? 1 : 0;
+                DB::table('listwish')
                     ->where('post_id', $post->id)
                     ->where('user_id', $user_id->user_id)
-                    ->first();
-                if ($lwish) {
-                    if ($lwish->yeuthich == 0) {
-                        $lwish = DB::table('listwish')->update([
-                            'yeuthich' => 1,
-                        ]);
-                    } else {
-                        $lwish = DB::table('listwish')->update([
-                            'yeuthich' => 0,
-                        ]);
-                    }
-                } else {
-                    $lwish = new listwish();
-                    $lwish->post_id = $post->id;
-                    $lwish->user_id = $user_id->user_id;
-                    $lwish->yeuthich = 1;
-                    $lwish->save();
-                }
-                // $kq = $this->Post_detail_user($id);
-                return redirect()->back();
+                    ->update(['yeuthich' => $updatedStatus]);
+            } else {
+                DB::table('listwish')->insert([
+                    'post_id' => $post->id,
+                    'user_id' => $user_id->user_id,
+                    'yeuthich' => 1,
+                ]);
+                $updatedStatus = 1;
             }
-        } else {
-            return redirect('/login');
+
+            return response()->json(['status' => 'success', 'yeuthich' => $updatedStatus]);
         }
     }
+    return response()->json(['status' => 'error']);
+}
+
     public function showfavorite($id)
     {
         $user_id = Auth::user();
@@ -564,6 +583,7 @@ class PostsController extends Controller
     }
     public function findPostdt(Request $request)
     {
+        //  dd($request->all());
         $mindt = intval($request->input('mindt'));
         $maxdt = intval($request->input('maxdt'));
 
@@ -579,9 +599,11 @@ class PostsController extends Controller
             ->select('phongtro.*', 'posts.*', 'images.image',)
             ->orderBy('phongtro.phongtro_id', 'asc')
             ->get();
+            // dd($posts);
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+            // dd($post);
         }
         $gia = 'Diện tích từ ' . $mindt . '-' . $maxdt . ' m²';
         return view('user.findPost', ['find' => $posts, 'tukhoa' => $gia]);
@@ -590,16 +612,14 @@ class PostsController extends Controller
     //danh gia
     public function Evaluate(Request $request, $phongtro_id)
     {
-        // dd($request->all());
         $star = $request->input('star');
-
         $comment = $request->input('comment');
 
-
-        $user_id = Auth::user();
-        if ($user_id) {
-            $user_id = $user_id->user_id;
+        $user = Auth::user();
+        if ($user) {
+            $user_id = $user->user_id;
             $check = DB::table('evaluates')->where('user_id', $user_id)->where('phongtro_id', $phongtro_id)->first();
+            
             if (!isset($check)) {
                 $danhgia = new evaluate();
                 $danhgia->phongtro_id = $phongtro_id;
@@ -607,14 +627,25 @@ class PostsController extends Controller
                 $danhgia->rating = $star;
                 $danhgia->comment = $comment;
                 $danhgia->save();
-                return redirect()->back()->with('msge', 'Đánh giá thành công.');
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Đánh giá thành công.'
+                ]);
             } else {
-                return redirect()->back()->with('msge', 'Bạn đã đánh giá trước đó.');
+                return response()->json([
+                    'status' => 'exists',
+                    'message' => 'Bạn đã đánh giá trước đó.'
+                ]);
             }
         } else {
-            return redirect('/login');
+            return response()->json([
+                'status' => 'unauthenticated',
+                'message' => 'Bạn cần đăng nhập để đánh giá.'
+            ]);
         }
     }
+
     private function showEvaluate($phongtro_id)
     {
         $eva = db::table('evaluates')->join('users', 'users.user_id', '=', 'evaluates.user_id')->where('phongtro_id', $phongtro_id)->select('users.name', 'users.avt', 'evaluates.*')->get();
