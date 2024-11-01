@@ -189,4 +189,23 @@ function initializeAddressFields() {
     }
 }
 
-
+function bang() {
+    $('#post-table').DataTable({
+        // searching: false, // Tắt thanh tìm kiếm
+        language: {
+            "sProcessing": "Đang xử lý...",
+            "sLengthMenu": "Hiển thị _MENU_ kết quả",
+            "sZeroRecords": "Không tìm thấy kết quả nào",
+            "sInfo": "Hiển thị _START_ đến _END_ của _TOTAL_ kết quả",
+            "sInfoEmpty": "Hiển thị 0 đến 0 của 0 kết quả",
+            "sInfoFiltered": "(được lọc từ _MAX_ kết quả)",
+            "sSearch": "",
+            "oPaginate": {
+                "sFirst": "Đầu",
+                "sPrevious": "Trước",
+                "sNext": "Tiếp",
+                "sLast": "Cuối"
+            }
+        }
+    });
+}

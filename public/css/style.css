@@ -682,7 +682,22 @@ select.form-select option:hover {
     color: #c5122a;
     /* background-color: #c51a1a; */
 }
+.dataTables_info {
+    font-weight: bold; /* Đặt chữ in đậm */
+    margin-top: 10px; /* Thêm khoảng cách phía trên */
+}
 
+.dataTables_length {
+    margin-bottom: 10px; /* Thêm khoảng cách phía dưới */
+}
+.dataTables_filter {
+    margin-bottom: 20px; /* Thay đổi giá trị này để điều chỉnh khoảng cách */
+}
+
+/* Điều chỉnh khoảng cách cho các phần tử trong bảng */
+.dataTables_wrapper {
+    padding: 10px; /* Thêm khoảng cách cho toàn bộ khung chứa bảng */
+}
 
 a.navbarli:hover{
    background-color: white;
@@ -692,4 +707,193 @@ a.navbarli:hover{
 }
 .section_qlbaidang > div {
     border-radius: 10px;
+}
+
+#chatbot-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+    #chatbot-bubble i {
+        color: white;
+        font-size: 30px;
+    }
+
+/* Cửa sổ chat */
+#chat-window {
+    display: none;
+    position: fixed;
+    bottom: 90px; /* Để không che nút chatbot */
+    right: 20px;
+    width: 400px;
+    max-height: 500px;
+    border: 1px solid #007bff;
+    border-radius: 10px;
+    background-color: white;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header của cửa sổ chat */
+#chat-header {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Nội dung chat */
+#chat-content {
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Styling for messages */
+.message {
+    display: flex;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+
+.bot-message {
+    background-color: #f1f1f1;
+    align-self: flex-start;
+}
+
+/* Input và button gửi tin nhắn */
+#chat-input {
+    display: flex;
+    border-top: 1px solid #007bff;
+    padding: 10px;
+}
+
+#chat-input input {
+    flex: 1;
+    padding: 5px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+#chat-input button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.chat-button {
+    margin: 5px 0;
+    padding: 10px;
+    border: none;
+    background-color: white;
+    color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: bold;
+    text-align: left;
+}
+
+.chat-button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.swal-button {
+    background-color: #4CAF50; /* Màu nền nút */
+    color: white; /* Màu chữ nút */
+}
+
+.swal-button:hover {
+    background-color: #45a049; /* Màu nền nút khi hover */
+}
+.url{
+    color: #000;
+    text-decoration: none;
+}
+.url:hover{
+    color: red;
+}
+
+
+.pagination {
+    justify-content: center; /* Đặt các liên kết phân trang ở giữa */
+    margin-top: 20px; /* Khoảng cách trên */
+}
+.pagination .page-item {
+    margin: 0 2px; /* Khoảng cách nhỏ giữa các nút */
+}
+.pagination .page-link {
+    border-radius: 0.25rem; /* Bo tròn các liên kết */
+    padding: 0.25rem 0.5rem; /* Điều chỉnh padding cho các nút */
+    font-size: 0.9rem; /* Kích thước chữ */
+    min-width: 40px; /* Chiều rộng tối thiểu cho các nút */
+    text-align: center; /* Căn giữa chữ trong nút */
+}
+.pagination .page-item.active .page-link {
+    background-color: #007bff; /* Màu nền cho trang đang hoạt động */
+    border-color: #007bff; /* Màu viền cho trang đang hoạt động */
+    color: white; /* Màu chữ cho trang đang hoạt động */
+}
+.pagination .page-link:hover {
+    background-color: #0056b3; /* Màu nền khi di chuột */
+    color: white; /* Màu chữ khi di chuột */
+}
+.pagination .disabled .page-link {
+    color: #6c757d; /* Màu chữ cho nút bị vô hiệu hóa */
+    pointer-events: none; /* Không cho phép click vào nút bị vô hiệu hóa */
+    background-color: transparent; /* Màu nền cho nút bị vô hiệu hóa */
+    border-color: #dee2e6; /* Màu viền cho nút bị vô hiệu hóa */
+}
+
+.message {
+    display: inline; /* Hiển thị nội dung tin nhắn trên một dòng */
+    white-space: normal; /* Cho phép ngắt dòng khi cần thiết */
+}
+
+.cuoi {
+    text-decoration: none; /* Loại bỏ gạch chân */
+    color: blue; /* Đổi màu liên kết nếu muốn */
 }

@@ -262,24 +262,22 @@
         @endif
 
         @foreach ($post as $item)
-
-        <a class="btn btn-light col-sm-12" href="/chitiet_baidang/{{ $item->maphong }}">
-            <div class="row">
-                <div class="col-4">
-                    <img class="card-img-top " src="{{ asset('images/'.$item->image) }}" width="180" height="130" />
+            <a class="btn btn-light col-sm-12" href="/chitiet_baidang/{{ $item->maphong }}">
+                <div class="row">
+                    <div class="col-4">
+                        <img class="card-img-top" src="{{ asset('images/'.$item->image) }}" width="180" height="130" />
+                    </div>
+                    <div class="col-8 text-start">
+                        <p><b>{{ $item->content }}</b></p>
+                        <p class="text-dt">{{ $item->dientich }} m²</p>
+                        <p class="text-price">{{ $item->gia }}</p>
+                    </div>
                 </div>
-
-                <div class="col-8 text-start">
-                    <p><b>{{ $item->content }} </b>
-
-                        <p class="text-dt">{{ $item->dientich}} m²</p>
-                        <p class="text-price">{{ $item->gia}}</p>
-                        <p></p>
-                </div>
-            </div>
-        </a>
-
+            </a>
         @endforeach
+        <div class="pagination justify-content-center">
+            {{ $post->links('vendor.pagination.simple-bootstrap-5') }}
+        </div>
 
     </section>
     <div class="col-sm-2"></div>

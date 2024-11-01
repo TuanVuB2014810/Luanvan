@@ -20,9 +20,9 @@
                 <div class="slick-carousel">
                     @foreach($allimage as $image)
                     <div class="rounded mx-auto d-block thumbnail-container px-2"
-                        onmouseover="showImage('{{ asset('images/'.$image->image) }}')" onmouseout="resetImage()">
-                        <img class="w-8 h-10" src="{{ asset('images/'.$image->image) }}" width="120" height="120"
-                            alt="Thumbnail">
+                    onmouseover="showImage('{{ asset('images/' . trim($image->image)) }}')" onmouseout="resetImage()">
+                    <img class="w-8 h-10" src="{{ asset('images/' . trim($image->image)) }}" width="120" height="120"
+                        alt="Thumbnail">
                     </div>
                     @endforeach
                 </div>
@@ -32,8 +32,9 @@
         <div class="mt-4 px-2 bg-white text-dark">
             <h6><strong>{{ $post->content }}</strong><br></h6>
             <p><b class="price">{{ $post->gia }}/tháng</b> - <b>{{ $post->dientich }} m²</b></p>
-            <p><i class="fa-solid fa-location-dot fa-lg" style="color: #c5122a;"></i> {{ $post->dia_chi }},
-                {{ $post->huyen }}, {{ $post->tinh }}</p>
+            <p><i class="fa-solid fa-location-dot fa-lg" style="color: #c5122a;"></i> <a class="url" href="{{ $googleMapsUrl }}" target="_blank">{{ $post->dia_chi }},
+            {{ $post->huyen }}, {{ $post->tinh }}</a></p>
+            <!-- map -->
 
             <div class="d-flex justify-content-between align-items-center">
             <p> <i class="fa-solid fa-clock fa-lg" style="color: #c5122a;"></i> Đăng {{ $time }}</p>
@@ -75,12 +76,12 @@
         </div>
 
         <div class="rating-container mt-1 px-2 bg-white text-dark my-2 py-1">
-            @if($msg = Session::get('msge'))
-            {{-- <span class="success">{{ $msg }}</span> --}}
+        @if($msg = Session::get('msge'))
             <script>
-                alert("{{ $msg }}");
+                // Sử dụng SweetAlert để hiển thị thông báo
+                swal("Thông báo", "{{ $msg }}", "success");
             </script>
-            @endif
+        @endif
             <div class="total_evalute">
                 <h4 class="p-3"><b>Đánh giá {{ $post->content }}</b></h4>
                 <div class="rating-stars-show pt-2" id="total_start">
@@ -307,7 +308,10 @@
     <div class="col-sm-2"></div>
 
 </div>
- <script src="{{ asset('js/jquery.min.js') }}"></script>
+
+
+
+<script src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 
 <script>
@@ -396,7 +400,7 @@
             data: formData,
             success: function (response) {
                 if (response.status === 'success') {
-                    alert(response.message);
+                    swal(response.message);
                     $('#ratingForm')[0].reset(); // Reset lại form
                     $('.rating_star').removeClass('checked'); // Bỏ nổi bật các sao
 
@@ -430,14 +434,14 @@
                     // Cập nhật số sao trung bình và tổng số đánh giá sau khi đánh giá thành công
                     updateTotalRating();
                 } else if (response.status === 'exists') {
-                    alert(response.message);
+                    swal(response.message);
                 } else if (response.status === 'unauthenticated') {
-                    alert(response.message);
+                    swal(response.message);
                     window.location.href = '/login'; // Điều hướng tới trang đăng nhập
                 }
             },
             error: function (error) {
-                alert('Đã xảy ra lỗi, vui lòng thử lại.');
+                swal('Đã xảy ra lỗi, vui lòng thử lại.');
             }
         });
     });
@@ -482,7 +486,7 @@
                 }
             },
             error: function (error) {
-                alert('Lỗi khi cập nhật tổng số đánh giá.');
+                swal('Lỗi khi cập nhật tổng số đánh giá.');
             }
         });
     }

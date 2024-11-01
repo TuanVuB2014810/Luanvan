@@ -16,13 +16,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use CarbonCarbon;
 use Jenssegers\Date\Date;
+use GuzzleHttp\Client;
 
 class PostsController extends Controller
 {
     public function index()
     {
         $posts = DB::table('phongtro')
-
             ->join('posts', 'phongtro.maphong', '=', 'posts.maphong')
             ->leftJoin('images', function ($join) {
                 $join->on('phongtro.phongtro_id', '=', 'images.phongtro_id')
@@ -31,24 +31,23 @@ class PostsController extends Controller
             ->where('status', '1')
             ->select('phongtro.*', 'posts.*', 'images.image')
             ->orderBy('phongtro.phongtro_id', 'asc')
-            ->get();
+            ->paginate(5);
+    
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
         }
+    
         $PostMostfav = $this->PostMostfav();
         $PostLast = $this->GetPostLast();
-
-        // dd($PostMostfav);
-        return view(
-            'user.index',
-            [
-                'post' => $posts,
-                'PostMostfav' => $PostMostfav,
-                'PostLast' => $PostLast,
-            ]
-        );
+    
+        return view('user.index', [
+            'post' => $posts,
+            'PostMostfav' => $PostMostfav,
+            'PostLast' => $PostLast,
+        ]);
     }
+    
     public function GetPostLast(){
          $posts = DB::table('phongtro')
             ->join('posts', 'phongtro.maphong', '=', 'posts.maphong')
@@ -59,7 +58,7 @@ class PostsController extends Controller
             ->where('status', '1')
 
             ->select('phongtro.*', 'phongtro.name', 'posts.*', 'images.image',)
-            ->orderBy('phongtro.phongtro_id', 'asc')
+            ->orderBy('phongtro.phongtro_id', 'desc')
             ->take(8)
             ->get();
         // dd($posts);
@@ -282,10 +281,14 @@ class PostsController extends Controller
         $post->gia = Format::format_currency($post->gia);
         $post->gia_dien = Format::format_currency($post->gia_dien);
         $post->gia_nuoc = Format::format_currency($post->gia_nuoc);
-
+        $phongTro = DB::table('phongtro')->where('maphong', $id)->first();
+        $diaChi = urlencode($phongTro->dia_chi . ', ' . $phongTro->huyen . ', ' . $phongTro->tinh);
+        $googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=" . $diaChi;
         // dd($userList);
         // dd($evaluates);
         // dd($timeSinceCreation);
+        
+        
         return view('user.detailPost', [
             'post' => $post,
             'time' => $timeSinceCreation,
@@ -296,8 +299,11 @@ class PostsController extends Controller
             'userList' => $userList,
             'postAddress' => $postAddress,
             'total_rating' => $total_rating,
+            'googleMapsUrl' => $googleMapsUrl,
+            // 'coordinates' => $coordinates,
         ]);
     }
+  
     public function getTotalRating($phongtro_id)
     {
         // Lấy tổng số đánh giá và sao trung bình từ cơ sở dữ liệu
@@ -423,7 +429,7 @@ class PostsController extends Controller
             ->where('phongtro.loai_phong', '=', $type)
             ->select('phongtro.*', 'posts.*', 'images.image', 'loaiphong.name as tenloai')
             ->orderBy('phongtro.phongtro_id', 'asc')
-            ->get();
+            ->paginate(5);
         $tenloai = DB::table('loaiphong')
             ->where('id', '=', $type)->select('loaiphong.name')->first();
         foreach ($posts as $post) {
@@ -761,5 +767,5 @@ class PostsController extends Controller
             ->get();
         return view('admin/post/adminPost', ['post' => $post,]);
     }
-
+    
 }

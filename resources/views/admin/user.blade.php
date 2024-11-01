@@ -6,7 +6,7 @@
 
 
 </div>
-<table class="table mt-3">
+<table class="table mt-3" id="post-table">
     <thead>
       <tr>
         <th>STT</th>
@@ -42,5 +42,10 @@
         @endforeach
     </tbody>
   </table>
+  <script>
+  $(document).ready(function () {
+      bang(); // Gọi hàm bang() để khởi tạo DataTable
+  });
+</script>
 @endsection
     

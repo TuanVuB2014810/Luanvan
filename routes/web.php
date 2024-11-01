@@ -13,7 +13,8 @@ use App\Http\Controllers\LoginGoogleController;
 use App\Http\Controllers\LoginFacebookController;
 use App\Http\Controllers\Thongkecontroller;
 use App\Http\Controllers\Chatcontroller;
-
+// use App\Http\Controllers\BotController;
+use App\Http\Controllers\ChatbotController;
 
 route::get('/admin/login',[AdminController::class,'login'])->name('login-admin');
 route::post('/admin/login',[AdminController::class,'postlogon'])->name('admin.logon');
@@ -52,6 +53,8 @@ route::prefix('admin')->middleware('admin')->group(function (){
 
     Route::get('/thong-ke', [ThongkeController::class,'thongke']);
     Route::post('/thong-ke', [ThongkeController::class,'thongkeThoigian']);
+
+    Route::post('/export', [PostAdminController::class, 'import'])->name('import');
 
 });
 // Route::use('', [UserController::class,'getAtv'])->name('avt');
@@ -124,7 +127,12 @@ route::middleware('auth')->group(function (){
 
     Route::get('/auth/facebook', [LoginFacebookController::class,'redirectToFacebook'])->name('auth.facebook');
     Route::get('/auth/facebook/callback', [LoginFacebookController::class,'handleFacebookCallback']);
-  
+    
+    // Route::get('/user/{id}/', [PostsController::class, 'showMap']);
+    // Route cho bot
+    // Route::post('/botman', [BotController::class, 'handle']);
+
+    Route::post('/chat', [ChatbotController::class, 'chat']);
 
 
     Route::fallback(function () {

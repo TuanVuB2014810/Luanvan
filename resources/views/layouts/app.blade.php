@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@14.6.4/distribute/nouislider.min.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -162,7 +162,184 @@
 
     </footer>
 </body>
+<div id="chatbot-bubble">
+    <i class="far fa-comment-dots"></i>
+</div>
 
+<!-- Cửa sổ chat -->
+<div id="chat-window" style="display: none;">
+    <div id="chat-header">
+        Chatbot
+        <span id="close-chat" style="cursor: pointer; float: right;">&times;</span>
+    </div>
+    <div id="chat-content"></div>
+    <div id="chat-input">
+        <input type="text" id="userMessage" placeholder="Nhập tin nhắn..." />
+        <button id="sendMessage"><i class="far fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+    // Chức năng để hiển thị hoặc ẩn cửa sổ chat
+    document.getElementById("chatbot-bubble").addEventListener("click", function () {
+        var chatWindow = document.getElementById("chat-window");
+        chatWindow.style.display = chatWindow.style.display === "none" || chatWindow.style.display === "" ? "flex" : "none";
+    });
+
+    // Chức năng đóng cửa sổ chat
+    document.getElementById("close-chat").addEventListener("click", function () {
+        document.getElementById("chat-window").style.display = "none";
+    });
+
+    // Chức năng gửi tin nhắn khi nhấn nút hoặc nhấn Enter
+    document.getElementById("sendMessage").addEventListener("click", sendMessage);
+    document.getElementById("userMessage").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    function sendMessage() {
+        var userMessageInput = document.getElementById("userMessage");
+        var messageContent = userMessageInput.value.trim();
+
+        if (messageContent) {
+            // Hiển thị tin nhắn người dùng
+            displayMessage(messageContent, "user-message");
+            saveChatHistory();
+            // Gọi API gửi tin nhắn đến server
+            fetch('/api/chatbot/send-message', { // Cập nhật đường dẫn
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Thêm CSRF token
+                },
+                body: JSON.stringify({
+                    sender: 'user', // Chỉnh sửa tên thuộc tính cho đúng với controller
+                    message: messageContent // Chỉnh sửa tên thuộc tính cho đúng với controller
+                })
+            })
+                .then(response => {
+                    if (!response.ok) { // Kiểm tra nếu có lỗi trong phản hồi
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hiển thị tin nhắn phản hồi từ chatbot
+                    data.forEach(message => {
+                        displayMessage(message.text, "bot-message");
+                        saveChatHistory();
+                        // Nếu có nút, hiển thị nút
+                        if (message.buttons && message.buttons.length > 0) {
+                            displayButtons(message.buttons);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+
+            // Xóa nội dung input sau khi gửi
+            userMessageInput.value = '';
+        }
+    }
+
+    // Hàm để hiển thị tin nhắn
+    function displayMessage(message, messageType) {
+    var chatContent = document.getElementById("chat-content");
+
+    var messageElement = document.createElement("div");
+    messageElement.classList.add("message", messageType);
+
+    // Sử dụng linkify để chuyển đổi các URL thành liên kết
+    messageElement.innerHTML = linkify(message);
+
+    chatContent.appendChild(messageElement);
+
+    // Tự động cuộn xuống dưới cùng
+    chatContent.scrollTop = chatContent.scrollHeight;
+}
+
+// Hàm linkify để chuyển đổi URL trong chuỗi thành liên kết HTML
+function linkify(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    // Thay thế URL bằng "tại đây" và thêm liên kết
+    return text.replace(urlPattern, '<a href="$1"  class ="cuoi"rel="noopener noreferrer">tại đây</a>');
+}
+
+
+
+
+    // Hàm để hiển thị các nút
+    function displayButtons(buttons) {
+        var chatContent = document.getElementById("chat-content");
+
+        var buttonContainer = document.createElement("div");
+        buttonContainer.classList.add("button-container");
+
+        buttons.forEach(function (button) {
+            var buttonWrapper = document.createElement("div");
+
+            var buttonElement = document.createElement("button");
+            buttonElement.textContent = button.title;
+            buttonElement.classList.add("chat-button");
+
+            buttonElement.addEventListener("click", function () {
+                sendButtonMessage(button.payload);
+            });
+
+            buttonWrapper.appendChild(buttonElement);
+            buttonContainer.appendChild(buttonWrapper);
+        });
+
+        chatContent.appendChild(buttonContainer);
+
+        // Tự động cuộn xuống dưới cùng
+        chatContent.scrollTop = chatContent.scrollHeight;
+    }
+
+    // Hàm để gửi tin nhắn khi người dùng nhấn nút
+    function sendButtonMessage(payload) {
+        displayMessage(payload, "user-message");
+        saveChatHistory();
+        fetch('/api/chatbot/send-message', { // Cập nhật đường dẫn
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Thêm CSRF token
+            },
+            body: JSON.stringify({
+                sender: 'user', // Chỉnh sửa tên thuộc tính cho đúng với controller
+                message: payload // Chỉnh sửa tên thuộc tính cho đúng với controller
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(message => {
+                    displayMessage(message.text, "bot-message");
+                    saveChatHistory();
+                    if (message.buttons && message.buttons.length > 0) {
+                        displayButtons(message.buttons);
+                    }
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    function saveChatHistory() {
+    const chatContent = document.getElementById("chat-content").innerHTML;
+    localStorage.setItem("chatHistory", chatContent);
+}
+
+// Khôi phục cuộc trò chuyện từ localStorage
+function loadChatHistory() {
+    const savedChat = localStorage.getItem("chatHistory");
+    if (savedChat) {
+        document.getElementById("chat-content").innerHTML = savedChat;
+    }
+}
+
+// Tải lại lịch sử cuộc trò chuyện khi trang được mở lại
+window.onload = loadChatHistory;
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>  --}}
@@ -230,5 +407,6 @@
         });
     });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 
 </html>

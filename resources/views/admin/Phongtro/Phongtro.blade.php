@@ -10,7 +10,20 @@
 }
 
 @endif
-<table class="table mt-3">
+<div class="col-sm-4 d-flex">
+            <form action="{{route('import')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <div class="col-sm-3" style="margin-right: 14px;">
+                        <input class="btn btn-success " type="submit" value="Nhập File" name="import_csv">
+                    </div>
+                    <br>
+                    <input type="file" style="margin-top: -3px;" name="file" style accept=".xlsx" class="form-control-file">
+                    
+                </div>
+            </form>
+        </div>
+<table class="table mt-3" id="post-table">
     <thead>
       <tr>
         <th>STT</th>
@@ -47,5 +60,10 @@
         @endforeach
     </tbody>
   </table>
+<script>
+  $(document).ready(function () {
+      bang(); // Gọi hàm bang() để khởi tạo DataTable
+  });
+</script>
 @endsection
     

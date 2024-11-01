@@ -6,7 +6,7 @@
 
     <h3 class="m-2">Các bài đăng </h3>
     
-    <form action="" class="col-lg-5 px-3" action="" method="POST">
+    <!-- <form action="" class="col-lg-5 px-3" action="" method="POST">
 
       @csrf
       @method('POST')
@@ -15,13 +15,13 @@
           aria-label="Recipient's username" aria-describedby="button-addon2">
         <input class="btn btn-outline-primary" name="timkiem_sp" type="submit" value="Tìm" id="button-addon2">
       </div>
-    </form>
+    </form> -->
   </div>
  @if($msg = Session::get('msg_duyet'))
     <br>
     <h5 class="success_msg text-center my-3">{{ $msg }}</h5>
     @endif
-  <table class="table mt-3">
+  <table class="table mt-3" id="post-table">
     <thead>
       <tr>
         <th>STT</th>
@@ -142,6 +142,11 @@
 });
 
 
+</script>
+<script>
+  $(document).ready(function () {
+      bang(); // Gọi hàm bang() để khởi tạo DataTable
+  });
 </script>
 
 @endsection

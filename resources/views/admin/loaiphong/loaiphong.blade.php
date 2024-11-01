@@ -6,17 +6,10 @@
 </div>
 
 
-<a class="btn btn-success" href="/admin/ql_loai-create">Thêm loại</a>
-{{-- @if($msg)
-  <h5 class="success text-center">{{ $msg}}</h5>
-  @endif --}}
-   @if($msg = Session::get('msg'))
-    <br>
-    <h5 class="success_msg text-center my-1">{{ $msg }}</h5>
-    @endif
+
 <div class="row px-2">
   <div class="col-sm-3"></div>
-  <table class="table mt-3 col-sm-6">
+  <table class="table mt-3 col-sm-6" id="post-table">
     <thead>
       <tr class="">
         <th class="">STT</th>
@@ -47,7 +40,21 @@
     </tbody>
   </table>
    <div class="col-sm-3"></div>
+   <div class="col-12 text-center">
+   <a class="btn btn-success" href="/admin/ql_loai-create">Thêm loại</a>
+{{-- @if($msg)
+  <h5 class="success text-center">{{ $msg}}</h5>
+  @endif --}}
+   @if($msg = Session::get('msg'))
+    <br>
+    <h5 class="success_msg text-center my-1">{{ $msg }}</h5>
+    @endif
+   </div>
 </div>
-
+<script>
+  $(document).ready(function () {
+      bang(); // Gọi hàm bang() để khởi tạo DataTable
+  });
+</script>
 @endsection
      
