@@ -7,10 +7,10 @@
     <div class="col-12 text-center  mt-5">
         <h3 class="pt-2 text_index">Cho thuê nhà trọ, phòng trọ đầy đủ tiện nghi</h3>
     </div>
-    <div class="col-sm-2"></div>
+    <div class="col-sm-2" ></div>
     <section class="col-10 col-lg-2 row bg-white">
 
-        <div class="col-10">
+        <div class="col-12">
             <h4 class="text-center pt-2">Tìm kiếm</h4>
             <div>
 
@@ -96,7 +96,6 @@
             <hr class="px-2">
 
             <div>
-
                 <h6 class="mb-3 text-danger"><b class="running-border">Lọc theo diện tích</b></h6>
                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#searchModalPrice">
                     Nhập diện tích
@@ -184,10 +183,10 @@
 
             </div>
             <div class="row p-2">
-
-                <hr class="px-2">
+                <hr>
+            <h6 class="mb-3 text-danger"><b class="running-border">Lọc theo địa chỉ</b></h6>
                 <a href="" class="btn btn-danger py-1 my-1 find_adress" data-toggle="modal"
-                    data-target="#rejectModal">Tìm kiếm địa chỉ</a>
+                    data-target="#rejectModal">Nhập địa chỉ</a>
                 <div class="modal fade mt-5" id="rejectModal" tabindex="-1" role="dialog"
                     aria-labelledby="rejectModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -203,7 +202,7 @@
                                     method="post" id="dcForm">
                                     @csrf
                                     @method('POST')
-                                    <select name="calc_shipping_provinces" class="form-control" required="">
+                                    <select name="calc_shipping_provinces" class="form-control"  required="">
                                         <option value="">Tỉnh/Thành phố</option>
                                     </select>
                                     <select name="calc_shipping_district" class="form-control mt-1" required="">
@@ -222,6 +221,41 @@
                     </div>
                 </div>
 
+            </div>
+            <div class="row p-2">
+                <hr>
+                <h6 class="mb-3 text-danger"><b class="running-border">Lọc tùy chỉnh</b></h6>
+                <a href="" class="btn btn-danger py-1 my-1 find_adress" data-toggle="modal" data-target="#customSearchModal">Nhập điều kiện</a>
+                <div class="modal fade mt-5" id="customSearchModal" tabindex="-1" role="dialog" aria-labelledby="customSearchModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-center" id="customSearchModalLabel">Nhập điều kiện</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('find.posts') }}" class="col-10 w-90 mx-2 my-2" method="get" id="tcForm">
+                                    @csrf
+                                    <select name="calc_shipping_provinces" class="form-control" >
+                                        <option value="">Tỉnh/Thành phố</option>
+                                    </select>
+                                    <select name="calc_shipping_district" class="form-control mt-1" >
+                                        <option value="">Quận/Huyện</option>
+                                    </select>
+                                    <input class="billing_address_1" name="" type="hidden" value="">
+                                    <input class="billing_address_2" name="" type="hidden" value="">
+                                    <input type="text" name="minPrice" placeholder="Giá tối thiểu" class="form-control mt-1">
+                                    <input type="text" name="maxPrice" placeholder="Giá tối đa" class="form-control mt-1">
+                                    <input type="text" name="mindt" placeholder="Diện tích tối thiểu" class="form-control mt-1">
+                                    <input type="text" name="maxdt" placeholder="Diện tích tối đa" class="form-control mt-1">
+                                    <button type="submit_dt" class="mt-2 btn btn-danger mx-auto my-2 offset-1">Tìm kiếm</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -262,19 +296,28 @@
         @endif
 
         @foreach ($post as $item)
-            <a class="btn btn-light col-sm-12" href="/chitiet_baidang/{{ $item->maphong }}">
-                <div class="row">
-                    <div class="col-4">
-                        <img class="card-img-top" src="{{ asset('images/'.$item->image) }}" width="180" height="130" />
-                    </div>
-                    <div class="col-8 text-start">
-                        <p><b>{{ $item->content }}</b></p>
-                        <p class="text-dt">{{ $item->dientich }} m²</p>
-                        <p class="text-price">{{ $item->gia }}</p>
-                    </div>
+        <a class="btn btn-light col-sm-12" href="/chitiet_baidang/{{ $item->maphong }}" data-rating="{{ round($item->total_rating->average_rating, 1) }}">
+            <div class="row">
+                <div class="col-4">
+                    <img class="card-img-top" src="{{ asset('images/'.$item->image) }}" width="180" height="150" />
                 </div>
-            </a>
-        @endforeach
+                <div class="col-8 text-start" >
+                    <b>{{ $item->content }}</b>
+                    <div class="rating-stars-show pt-2 total_start1" style="justify-content: left; padding-bottom: 10px">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <span class="fa fa-star rating_star py-1" data-index="{{ $i }}"></span>
+                        @endfor
+                        <span class="messeva"> {{ $item->total_rating->total_ratings }} đánh giá</span>
+                    </div>
+
+                    <p class="text-dt">{{ $item->dia_chi }}, {{ $item->huyen }}, {{ $item->tinh }}</p>
+                    <p class="text-dt">{{ $item->dientich }} m²</p>
+                    <p class="text-price">{{ $item->gia }}</p>
+                   
+                </div>
+            </div>
+        </a>
+    @endforeach
         <div class="pagination justify-content-center">
             {{ $post->links('vendor.pagination.simple-bootstrap-5') }}
         </div>
@@ -295,9 +338,17 @@
                     </a>
                     <div class="card-body card-body-status">
                         <p class="card-title">{{ $p->content }}</p>
+                        <div class="rating-stars-show pt-2 total_start1" data-rating="{{ $p->total_rating->average_rating }}" style="justify-content: left; padding-bottom: 10px">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <span class="fa fa-star rating_star py-1" data-index="{{ $i }}"></span>
+                            @endfor
+                            <span class="messeva">{{ $p->total_rating->total_ratings }} đánh giá</span>
+                        </div>
+                        <p class="card-text text-dc">{{ $p->dia_chi }}, {{ $p->huyen }}, {{ $p->tinh }}</p>
                         <p class="card-text text-dt">{{ $p->dientich }} m²</p>
-                        <h6 class="card-subtitle mb-2  text-price">{{ $p->gia }}</h6>
+                        <h6 class="card-subtitle mb-2 text-price">{{ $p->gia }}</h6>
                     </div>
+
                 </div>
 
                 @endforeach
@@ -321,8 +372,15 @@
                     </a>
                     <div class="card-body card-body-status">
                         <p class="card-title">{{ $p->content }}</p>
+                        <div class="rating-stars-show pt-2 total_start1" data-rating="{{ $p->total_rating->average_rating }}" style="justify-content: left; padding-bottom: 10px">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <span class="fa fa-star rating_star py-1" data-index="{{ $i }}"></span>
+                            @endfor
+                            <span class="messeva">{{ $p->total_rating->total_ratings }} đánh giá</span>
+                        </div>
+                        <p class="card-text text-dc">{{ $p->dia_chi }}, {{ $p->huyen }}, {{ $p->tinh }}</p>
                         <p class="card-text text-dt">{{ $p->dientich }} m²</p>
-                        <h6 class="card-subtitle mb-2  text-price">{{ $p->gia }}</h6>
+                        <h6 class="card-subtitle mb-2 text-price">{{ $p->gia }}</h6>
                     </div>
                 </div>
 
@@ -334,8 +392,9 @@
         @endif
     </section>
 
-    
+
 </div>
+
 
 <script>
     // Gọi hàm initializeAddressFields() để khởi tạo các trường địa chỉ sau khi DOM đã được tải
@@ -345,4 +404,6 @@
     });
    
 </script>
+
+
 @endsection

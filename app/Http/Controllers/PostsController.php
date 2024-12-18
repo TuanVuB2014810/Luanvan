@@ -20,33 +20,66 @@ use GuzzleHttp\Client;
 
 class PostsController extends Controller
 {
-    public function index()
-    {
-        $posts = DB::table('phongtro')
-            ->join('posts', 'phongtro.maphong', '=', 'posts.maphong')
-            ->leftJoin('images', function ($join) {
-                $join->on('phongtro.phongtro_id', '=', 'images.phongtro_id')
-                    ->whereRaw('images.id = (SELECT MIN(id) FROM images WHERE images.phongtro_id = phongtro.phongtro_id)');
-            })
-            ->where('status', '1')
-            ->select('phongtro.*', 'posts.*', 'images.image')
-            ->orderBy('phongtro.phongtro_id', 'asc')
-            ->paginate(5);
-    
-        foreach ($posts as $post) {
-            $post->content = Format::textShorten($post->content);
-            $post->gia = Format::format_currency($post->gia);
-        }
-    
-        $PostMostfav = $this->PostMostfav();
-        $PostLast = $this->GetPostLast();
-    
-        return view('user.index', [
-            'post' => $posts,
-            'PostMostfav' => $PostMostfav,
-            'PostLast' => $PostLast,
-        ]);
+    public function index(Request $request)
+{
+    $query = $request->input('query'); // Lấy giá trị tìm kiếm từ query string
+
+    // Lấy tất cả dữ liệu bài đăng
+    $posts = DB::table('phongtro')
+        ->join('posts', 'phongtro.maphong', '=', 'posts.maphong')
+        ->leftJoin('images', function ($join) {
+            $join->on('phongtro.phongtro_id', '=', 'images.phongtro_id')
+                ->whereRaw('images.id = (SELECT MIN(id) FROM images WHERE images.phongtro_id = phongtro.phongtro_id)');
+        })
+        ->where('status', '1');
+
+    // Thêm điều kiện tìm kiếm nếu có query
+    if ($query) {
+        $posts->where('posts.content', 'like', '%' . $query . '%'); // Tìm kiếm theo nội dung bài đăng
     }
+
+    $posts = $posts->select('phongtro.*', 'posts.*', 'images.image')
+        ->get(); // Lấy tất cả bài đăng phù hợp
+
+    // Xử lý và thêm thông tin như content rút gọn, giá tiền, và tổng số sao
+    foreach ($posts as $post) {
+        $post->content = Format::textShorten($post->content);
+        $post->gia = Format::format_currency($post->gia);
+
+        // Lấy total rating cho mỗi bài đăng
+        $total_rating = $this->getTotalRating($post->phongtro_id);
+        $post->total_rating = $total_rating;
+    }
+
+    // Sắp xếp bài đăng theo số sao từ cao xuống thấp
+    $sortedPosts = collect($posts)->sortByDesc(function ($post) {
+        return $post->total_rating->average_rating ?? 0; 
+    });
+
+    // Phân trang 
+    $currentPage = $request->input('page', 1); 
+    $perPage = 5; // Số bài đăng mỗi trang
+    $paginatedPosts = new \Illuminate\Pagination\LengthAwarePaginator(
+        $sortedPosts->forPage($currentPage, $perPage), // Lấy các bài đăng tương ứng với trang hiện tại
+        $sortedPosts->count(), // Tổng số bài đăng
+        $perPage, // Số bài đăng mỗi trang
+        $currentPage, // Trang hiện tại
+        ['path' => $request->url(), 'query' => array_merge($request->query(), ['query' => $query])] // Thêm giá trị query để giữ lại trong URL khi phân trang
+    );
+
+    // Lấy các bài đăng phổ biến và bài đăng mới nhất
+    $PostMostfav = $this->PostMostfav();
+    $PostLast = $this->GetPostLast();
+
+    // Trả về view với dữ liệu đã phân trang và tìm kiếm
+    return view('user.index', [
+        'post' => $paginatedPosts, // Truyền bài đăng đã phân trang
+        'PostMostfav' => $PostMostfav,
+        'PostLast' => $PostLast,
+        'query' => $query, // Truyền giá trị query vào view để hiển thị trong ô tìm kiếm
+    ]);
+}
+
     
     public function GetPostLast(){
          $posts = DB::table('phongtro')
@@ -63,8 +96,11 @@ class PostsController extends Controller
             ->get();
         // dd($posts);
         foreach ($posts as $post) {
-            $post->content = Format::textShorten($post->content);
+            $post->content = Format::textShorten($post->content,40);
             $post->gia = Format::format_currency($post->gia);
+
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
         }
         return $posts;
     }
@@ -179,6 +215,7 @@ class PostsController extends Controller
         $post = $post::where('maphong', $id)
             ->update([
                 'content' => $request->input('content'),
+                'status' => '0',
             ]);
         $uploadedFiles = $request->file('images');
         if ($uploadedFiles) {
@@ -200,20 +237,24 @@ class PostsController extends Controller
         return redirect('/ql_dangbai')->with('msg', 'Chỉnh sửa thành công');
     }
     public function delete_post($id)
-    {
-        // dd($id);
-        $phongtro = new Phongtro();
-        $post = new Post();
-        $img = new Image();
-        $phongtro = $phongtro::where('maphong', $id)->delete();
+{
+    try {
+        // Xóa các thông tin liên quan đến bài đăng
+        $phongtro = Phongtro::where('maphong', $id)->delete();
         $phongtro_id = DB::table('phongtro')->where('maphong', $id)->select('phongtro_id')->first();
-        $img = $img::where('phongtro_id', $phongtro_id)->delete();
+        if ($phongtro_id) {
+            Image::where('phongtro_id', $phongtro_id->phongtro_id)->delete();
+        }
+        Post::where('maphong', $id)->delete();
 
-        $post = $post::where('maphong', $id)->delete();
-        // $phongtro->delete();
-        // dd($id);
-        return redirect('/ql_dangbai')->with('success_del', 'Xóa bài thành công.');
+        // Trả về phản hồi JSON
+        return response()->json(['success' => 'Xóa bài đăng thành công.']);
+    } catch (\Exception $e) {
+        // Xử lý lỗi và trả về phản hồi JSON
+        return response()->json(['error' => 'Đã xảy ra lỗi. Không thể xóa bài.'], 500);
     }
+}
+
     public function admin_post()
     {
         $post = DB::table('phongtro')
@@ -271,7 +312,7 @@ class PostsController extends Controller
         $evaluates = $this->showEvaluate($post->phongtro_id);
         $listwish = $this->showfavorite($id);
         $userList = $this->usersameAddress($post->addressUser);
-        $postAddress = $this->PostAddress($post->huyen);
+        $postAddress = $this->PostAddress($post->huyen, $id);
 
         $total_rating = db::table('evaluates')
             ->where('phongtro_id', $post->phongtro_id)
@@ -304,27 +345,78 @@ class PostsController extends Controller
         ]);
     }
   
-    public function getTotalRating($phongtro_id)
-    {
-        // Lấy tổng số đánh giá và sao trung bình từ cơ sở dữ liệu
-        $totalRating = DB::table('evaluates')
-            ->where('phongtro_id', $phongtro_id)
-            ->selectRaw('COUNT(*) as total_ratings, AVG(rating) as average_rating')
-            ->first();
+    // public function getTotalRating($phongtro_id)
+    // {
+    //     // Lấy tổng số đánh giá và sao trung bình từ cơ sở dữ liệu
+    //     $totalRating = DB::table('evaluates')
+    //         ->where('phongtro_id', $phongtro_id)
+    //         ->selectRaw('COUNT(*) as total_ratings, AVG(rating) as average_rating')
+    //         ->first();
 
-        // Kiểm tra nếu có dữ liệu
-        if ($totalRating) {
-            return response()->json([
-                'average_rating' => $totalRating->average_rating,
-                'total_ratings' => $totalRating->total_ratings
-            ]);
-        } else {
-            return response()->json([
-                'average_rating' => 0,
-                'total_ratings' => 0
-            ]);
-        }
+    //     // Kiểm tra nếu có dữ liệu
+    //     if ($totalRating) {
+    //         return response()->json([
+    //             'average_rating' => $totalRating->average_rating,
+    //             'total_ratings' => $totalRating->total_ratings
+    //         ]);
+    //     } else {
+    //         return response()->json([
+    //             'average_rating' => 0,
+    //             'total_ratings' => 0
+    //         ]);
+    //     }
+    // }
+    public function getTotalRating($phongtro_id)
+{
+    // Lấy tổng số đánh giá và sao trung bình từ cơ sở dữ liệu
+    $totalRating = DB::table('evaluates')
+        ->where('phongtro_id', $phongtro_id)
+        ->selectRaw('COUNT(*) as total_ratings, AVG(rating) as average_rating')
+        ->first();
+
+    // Kiểm tra nếu có dữ liệu
+    if ($totalRating) {
+        return $totalRating; // Trả về trực tiếp tổng số đánh giá và sao trung bình
+    } else {
+        return (object) ['average_rating' => 0, 'total_ratings' => 0]; // Nếu không có đánh giá nào
     }
+}
+public function getRatingData($ma_phong)
+{
+    // Tìm 'phongtro_id' từ bảng 'phongtro' dựa trên 'maphong'
+    $phongtro = DB::table('phongtro')->where('maphong', $ma_phong)->first();
+
+    if (!$phongtro) {
+        // Nếu không tìm thấy phòng trọ, trả về giá trị mặc định
+        return response()->json([
+            'five_star' => 0,
+            'four_star' => 0,
+            'three_star' => 0,
+            'two_star' => 0,
+            'one_star' => 0,
+        ]);
+    }
+
+    // Lấy đánh giá từ bảng 'evaluates' dựa trên 'phongtro_id'
+    $ratings = DB::table('evaluates')
+        ->where('phongtro_id', $phongtro->phongtro_id) // Sử dụng đúng 'phongtro_id'
+        ->selectRaw('
+            COUNT(CASE WHEN rating = 5 THEN 1 END) as five_star,
+            COUNT(CASE WHEN rating = 4 THEN 1 END) as four_star,
+            COUNT(CASE WHEN rating = 3 THEN 1 END) as three_star,
+            COUNT(CASE WHEN rating = 2 THEN 1 END) as two_star,
+            COUNT(CASE WHEN rating = 1 THEN 1 END) as one_star
+        ')
+        ->first();
+
+    // Trả về kết quả đánh giá dưới dạng JSON
+    return response()->json($ratings);
+}
+
+
+
+
+
     private function usersameAddress($add)
     {
         $users = DB::table('users')
@@ -367,7 +459,7 @@ class PostsController extends Controller
             ->where('phongtro.maphong', '=', $maphong)->select('images.*')->get();
         return $img;
     }
-    private function PostAddress($huyen)
+    private function PostAddress($huyen, $id)
     {
         $posts = DB::table('phongtro')
             ->join('posts', 'phongtro.maphong', '=', 'posts.maphong')
@@ -377,6 +469,7 @@ class PostsController extends Controller
             })
             ->where('status', '1')
             ->where('phongtro.huyen', $huyen)
+            ->where('posts.maphong', '!=', $id)
             ->select('phongtro.*', 'phongtro.name', 'posts.*', 'images.image',)
             ->orderBy('phongtro.phongtro_id', 'asc')
             ->take(8)
@@ -400,21 +493,32 @@ class PostsController extends Controller
             ->where('listwish.yeuthich', 1) 
             ->where('status', '1')
            
-            ->select('phongtro.dientich', 'phongtro.gia', 'posts.maphong', 'posts.content', 'images.image', DB::raw('COUNT(listwish.id) as favorite_count'))
-            ->groupBy('phongtro.dientich', 'phongtro.gia', 'posts.maphong', 'posts.content', 'images.image') // Nhóm kết quả theo các cột cần thiết
+            ->select('phongtro.phongtro_id','phongtro.dientich', 'phongtro.dia_chi','phongtro.huyen','phongtro.tinh','phongtro.gia', 'posts.maphong', 'posts.content', 'images.image', DB::raw('COUNT(listwish.id) as favorite_count'))
+            ->groupBy('phongtro.phongtro_id','phongtro.dientich',  'phongtro.dia_chi','phongtro.huyen','phongtro.tinh','phongtro.gia', 'posts.maphong', 'posts.content', 'images.image') // Nhóm kết quả theo các cột cần thiết
             ->orderByDesc('favorite_count') 
             ->take(8) 
             ->get();
         // dd($posts);
         foreach ($posts as $post) {
-            $post->content = Format::textShorten($post->content);
+            $post->content = Format::textShorten($post->content,40);
             $post->gia = Format::format_currency($post->gia);
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
         }
 
         return $posts;
     }
+   
+    private function textShorten($text, $limit = 100)
+    {
+        if (strlen($text) > $limit) {
+            return substr($text, 0, $limit) . '...';
+        }
 
-
+        return $text;
+    }
+// lọc theo loại
+    
     public function findPostType($type)
     {
         $posts = DB::table('phongtro')
@@ -435,6 +539,8 @@ class PostsController extends Controller
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating; // Lưu vào biến bài đăng
         }
         return view('user.index', ['post' => $posts, 'tenloai' => $tenloai]);
     }
@@ -442,6 +548,7 @@ class PostsController extends Controller
     {
         dd($request->all());
     }
+    // Lọc theo địa chỉ
     public function findPostAddr(Request $request)
     {
         // dd($request->all());
@@ -461,6 +568,9 @@ class PostsController extends Controller
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
         }
         $tukhoa = $request->calc_shipping_district . ", " . $request->calc_shipping_provinces;
         // dd($posts);
@@ -484,10 +594,122 @@ class PostsController extends Controller
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
         }
         $tukhoa = $request->tukhoa;
         return view('user.findPost', ['find' => $posts, 'tukhoa' => $tukhoa]);
     }
+    // lọc nhiều điều kiện
+    public function findPost(Request $request)
+{
+    $minPrice = $request->input('minPrice') ? intval($request->input('minPrice')) : null;
+    $maxPrice = $request->input('maxPrice') ? intval($request->input('maxPrice')) : null;
+    $minArea = $request->input('mindt') ? intval($request->input('mindt')) : null;
+    $maxArea = $request->input('maxdt') ? intval($request->input('maxdt')) : null;
+    $district = $request->input('calc_shipping_district');
+    $province = $request->input('calc_shipping_provinces');
+
+    // Bắt đầu query
+    $query = DB::table('phongtro')
+        ->join('posts', 'phongtro.maphong', '=', 'posts.maphong')
+        ->leftJoin('images', function ($join) {
+            $join->on('phongtro.phongtro_id', '=', 'images.phongtro_id')
+                ->whereRaw('images.id = (SELECT MIN(id) FROM images WHERE images.phongtro_id = phongtro.phongtro_id)');
+        })
+        ->where('status', '1');
+
+    // Thêm điều kiện lọc giá 
+    if (!is_null($minPrice) && !is_null($maxPrice)) {
+        $query->whereBetween('phongtro.gia', [$minPrice, $maxPrice]);
+    } elseif (!is_null($minPrice)) {
+        $query->where('phongtro.gia', '>=', $minPrice);
+    } elseif (!is_null($maxPrice)) {
+        $query->where('phongtro.gia', '<=', $maxPrice);
+    }
+
+    // Thêm điều kiện lọc diện tích 
+    if (!is_null($minArea) && !is_null($maxArea)) {
+        $query->whereBetween('phongtro.dientich', [$minArea, $maxArea]);
+    } elseif (!is_null($minArea)) {
+        $query->where('phongtro.dientich', '>=', $minArea);
+    } elseif (!is_null($maxArea)) {
+        $query->where('phongtro.dientich', '<=', $maxArea);
+    }
+
+    // Thêm điều kiện lọc địa chỉ 
+    if ($district) {
+        $query->where('phongtro.huyen', 'like', '%' . $district . '%');
+    }
+    if ($province) {
+        $query->where('phongtro.tinh', 'like', '%' . $province . '%');
+    }
+
+    // Thực thi query và lấy dữ liệu
+    $posts = $query->select('phongtro.*', 'posts.*', 'images.image')
+        ->orderBy('phongtro.phongtro_id', 'asc')
+        ->get();
+
+    // Xử lý dữ liệu
+    foreach ($posts as $post) {
+        $post->content = Format::textShorten($post->content);
+        $post->gia = Format::format_currency($post->gia);
+
+        $total_rating = $this->getTotalRating($post->phongtro_id);
+        $post->total_rating = $total_rating;
+    }
+
+    // Xây dựng từ khóa tìm kiếm
+    $keywords = [];
+
+    // Thêm từ khóa giá nếu có
+    
+    if ($minPrice || $maxPrice) {
+        $priceRange = [];
+        if ($minPrice && !$maxPrice) {
+            // Chỉ có diện tích tối thiểu
+            $keywords[] = 'giá thấp nhất ' . $minPrice . ' VNĐ';
+        } elseif (!$minPrice && $maxPrice) {
+            // Chỉ có diện tích tối đa
+            $keywords[] = 'giá cao nhất ' . $maxPrice . ' VNĐ';
+        } elseif ($minPrice && $maxPrice) {
+            // Có cả diện tích tối thiểu và tối đa
+            $keywords[] = 'giá từ ' . $minPrice . ' VNĐ đến ' . $maxPrice . ' VNĐ';
+        }
+    }
+    // Thêm từ khóa diện tích nếu có
+    if ($minArea || $maxArea) {
+        $areaRange = [];
+        if ($minArea && !$maxArea) {
+            // Chỉ có diện tích tối thiểu
+            $keywords[] = 'diện tích tối thiểu ' . $minArea . ' m²';
+        } elseif (!$minArea && $maxArea) {
+            // Chỉ có diện tích tối đa
+            $keywords[] = 'diện tích tối đa ' . $maxArea . ' m²';
+        } elseif ($minArea && $maxArea) {
+            // Có cả diện tích tối thiểu và tối đa
+            $keywords[] = 'diện tích từ ' . $minArea . ' m² đến ' . $maxArea . ' m²';
+        }
+    }
+    
+
+    // Thêm từ khóa địa danh nếu có
+    if ($district || $province) {
+        $location = [];
+        if ($district) $location[] = $district;
+        if ($province) $location[] = $province;
+        $keywords[] = 'ở ' . implode(', ', $location);
+    }
+
+    // Loại bỏ phần tử trống và nối các từ khóa
+    $tukhoa = implode(' , ', array_filter($keywords));
+
+    // Trả về view
+    return view('user.findPost', ['find' => $posts, 'tukhoa' => $tukhoa]);
+}
+
+
     public function AddFavorite(Request $request, $id)
 {
     $user_id = Auth::user();
@@ -556,10 +778,15 @@ class PostsController extends Controller
         foreach ($post as $p) {
             $p->content = Format::textShorten($p->content);
             $p->gia = Format::format_currency($p->gia);
-        }
-        return view('user.listwish')->with('posts', $post);
-    }
 
+            $total_rating = $this->getTotalRating($p->phongtro_id);
+             $p->total_rating = $total_rating;
+        }
+        $sortedPosts = $post->sortByDesc('total_rating');
+    
+        return view('user.listwish')->with('posts', $sortedPosts);
+    }
+    // lọc theo giá
     public function findPostPrice(Request $request)
     {
         // dd($request->all());
@@ -581,6 +808,9 @@ class PostsController extends Controller
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
         }
         $minPrice = Format::format_currency($minPrice);
         $maxPrice = Format::format_currency($maxPrice);
@@ -609,6 +839,9 @@ class PostsController extends Controller
         foreach ($posts as $post) {
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
             // dd($post);
         }
         $gia = 'Diện tích từ ' . $mindt . '-' . $maxdt . ' m²';
@@ -749,12 +982,22 @@ class PostsController extends Controller
     }
 
     public function suggestions(Request $request)
-    {
+{
+    $query = $request->input('query');
 
-        $query = $request->input('query');
-        $suggestions = Post::where('content', 'like', $query . '%')->limit(5)->pluck('content');
-        return response()->json(['suggestions' => $suggestions]); // Trả về dữ liệu dưới dạng JSON
+    // Kiểm tra nếu query không rỗng
+    if($query != '') {
+        $suggestions = Post::where('content', 'like', '%' . $query . '%')
+            ->limit(5)
+            ->pluck('content');
+        return response()->json(['suggestions' => $suggestions]);
+    } else {
+        return response()->json(['suggestions' => []]); // Nếu không có query thì trả về mảng trống
     }
+}
+
+
+
     public function adminSearchPosts(Request $request)
     {
         $post = DB::table('phongtro')

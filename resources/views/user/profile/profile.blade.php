@@ -32,7 +32,7 @@
                     <p class="col-sm-12">Địa Chỉ: {{ $user->city }}</p>
                     <p class="col-sm-12">Liên hệ:  {{ $user->phone }}</p>
                     <p class="col-sm-12">Đã tham gia:{{ $time }} </p>
-                    <a class="btn btn-warning text-light col-12" href="/edit-profile">Chỉnh sữa thông tin</a>
+                    <a class="btn btn-warning text-light col-12" href="/edit-profile">Chỉnh sửa thông tin</a>
                     <a class="btn btn-outline-dark col-12 my-2" href="/edit-profile-password"><b>Thay đổi mật khẩu</b></a>
                 </div>
                 
@@ -47,6 +47,13 @@
                         </a>
                         <div class="card-body card-body-status">
                         <p class="card-title">{{ $p->content }}</p>
+                        <div class="rating-stars-show pt-2 total_start1" data-rating="{{ $p->total_rating->average_rating }}" style="justify-content: left; padding-bottom: 10px">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <span class="fa fa-star rating_star py-1" data-index="{{ $i }}"></span>
+                            @endfor
+                            <span class="messeva">{{ $p->total_rating->total_ratings }} đánh giá</span>
+                        </div>
+                        <p class="card-text text-dc">{{ $p->dia_chi }}, {{ $p->huyen }}, {{ $p->tinh }}</p>
                             <p class="card-text text-dt">{{ $p->dientich }} m²</p>
                             <h6 class="card-subtitle mb-2  text-price">{{ $p->gia }}</h6>
                         </div>

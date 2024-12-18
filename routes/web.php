@@ -13,7 +13,7 @@ use App\Http\Controllers\LoginGoogleController;
 use App\Http\Controllers\LoginFacebookController;
 use App\Http\Controllers\Thongkecontroller;
 use App\Http\Controllers\Chatcontroller;
-// use App\Http\Controllers\BotController;
+use App\Http\Controllers\DanhgiaController;
 use App\Http\Controllers\ChatbotController;
 
 route::get('/admin/login',[AdminController::class,'login'])->name('login-admin');
@@ -28,11 +28,17 @@ route::prefix('admin')->middleware('admin')->group(function (){
     //duyet bai
     Route::get('/ql_dangbai', [PostsController::class,'admin_post'])->name('admin.post');
     Route::post('/ql_dangbai', [PostsController::class,'adminSearchPosts']);
+    Route::delete('/ql_dangbai/delete/{id}', [PostAdminController::class,'destroy']);
 
-    Route::get('/duyetbai/{id}', [PostAdminController::class,'duyetbai']);
+    // Route::get('/duyetbai/{id}', [PostAdminController::class,'duyetbai']);
+    // routes/web.php
+    Route::post('/duyetbai', [PostAdminController::class, 'duyetbai']);
+    
     Route::post('/quan-ly-duyet-bai-an-bai/{id}', [PostAdminController::class,'duyetbaiAn']);
 
     Route::get('/chitiet_baidang/{id}', [PostsController::class,'Post_detail'])->name('bai_dang_admin');
+    Route::get('/ql_dangbai/create', [PostAdminController::class, 'showCreateForm'])->name('baidang.create');
+    Route::post('/ql_dangbai/create', [PostAdminController::class, 'createPost'])->name('baidang.store');
     // quan ly loai
     Route::get('/ql_loai', [loaiphongController::class,'index']);
     Route::get('/ql_loai-create', [loaiphongController::class,'create']);
@@ -40,10 +46,14 @@ route::prefix('admin')->middleware('admin')->group(function (){
     Route::get('/ql_loai/edit/{id}', [loaiphongController::class,'edit']);
     Route::PUT('/ql_loai/edit/{id}', [loaiphongController::class,'update']);
     Route::delete('/ql_loai/delete/{id}', [loaiphongController::class,'destroy']);
+
+    Route::get('/ql_danhgia', [DanhgiaController::class,'index']);
+    Route::delete('/ql_danhgia/delete/{id}', [DanhgiaController::class,'destroy']);
     //xem phong tro 
     Route::get('/ql_phongtro', [PhongtroController::class,'index']);
     //quan ly nguoi dung
     Route::get('/ql_user', [UserController::class,'ql_user']);
+    Route::delete('/ql_taikhoan/delete/{id}', [UserController::class,'destroy']);
     //quan ly thong tin admin
     Route::get('/adminProfile', [AdminController::class,'profile'])->name('profileAdmin');
     Route::get('/edit_profileAdmin', [AdminController::class,'editProfileAmin'])->name('edit_profileAdmin');
@@ -86,17 +96,22 @@ Route::middleware('avatar')->group(function () {
     //chi tiet bai dang user
     Route::get('/chitiet_baidang/{id}', [PostsController::class,'Post_detail_user'])->name('bai_dang_user');
     Route::get('/get-total-rating/{phongtro_id}', [PostsController::class, 'getTotalRating'])->name('getTotalRating');
+    Route::get('/rating-data/{phongtro_id}', [PostsController::class, 'getRatingData']);
     //tim kiem
     Route::get('/tim-kiem', [PostsController::class,'index']);
     Route::get('/tim-kiem-loai-hinh-thue/{type}', [PostsController::class,'findPostType']);
     Route::post('/tim-kiem', [PostsController::class,'findPostContent']);
+    Route::get('/find-posts', [PostsController::class, 'findPost'])->name('find.posts');
 
     Route::post('/tim-kiem-phong-tro-theo-gia', [PostsController::class,'findPostPrice']);
     Route::post('/tim-kiem-phong-tro-theo-dien-tich', [PostsController::class,'findPostdt']);
     Route::post('/tim-kiem-phong-tro-theo-dia-chi', [PostsController::class,'findPostAddr']);
 
     //goi y tim kiem
-    Route::get('/tim-kiem-suggestions', [PostsController::class,'suggestions'])->name('search.suggestions');
+    Route::get('/tim-kiem', [PostsController::class, 'index'])->name('timkiem.index');
+    Route::get('/tim-kiem-suggestions', [PostsController::class, 'suggestions'])->name('search.suggestions');
+
+
 
     
     //profile

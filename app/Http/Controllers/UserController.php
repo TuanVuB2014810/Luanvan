@@ -23,8 +23,7 @@ class UserController extends Controller
     //     $this->middleware('auth')->only(['postLogin', 'logout',]);
     // }
     public function ql_user(){
-        $u = DB::table('users')->where('role','0')->select('users.name','users.phone','users.city','users.email','users.google_id','users.facebook_id')->get();
-      
+        $u = DB::table('users')->where('role','0')->select('user_id','users.name','users.phone','users.city','users.email','users.google_id','users.facebook_id')->get();
         return view('admin.user',[
             'users'  => $u ,
         ]);
@@ -38,6 +37,24 @@ class UserController extends Controller
         return view('user.register');
     }
     public function postRegister(Request $request){
+        $request->validate([
+            'name' => 'required|unique:users,name',
+            'email' => 'required|email|unique:users,email',
+            'pass' => 'required|min:6',
+            'phone' => 'required|unique:users,phone',
+            'city' => 'required',
+        ], [
+            'name.required' => 'Vui lòng nhập tên người dùng.',
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.unique' => 'Email đã được sử dụng.',
+            'name.unique' => 'Tên người dùng đã được sử dụng.',
+            'phone.unique' => 'Số điện thoại đã được sử dụng.',
+            'pass.required' => 'Vui lòng nhập mật khẩu.',
+            'pass.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
+            'phone.required' => 'Vui lòng nhập số điện thoại.',
+            'city.required' => 'Vui lòng nhập thành phố.',
+        ]);
        
         $request->merge(['pass'=>Hash::make($request->pass)]);
         // dd($request->all());
@@ -57,11 +74,18 @@ class UserController extends Controller
         // catch(\Throwable $th){
         // dd($th);
         // }
-        return redirect()->route('register')->with('success','Tạo tài khoản thành công');
+        return redirect()->route('register')->with('success', 'Bạn đã tạo tài khoản thành công!');
     }
     public function postLogin(Request $request){
        
-       
+        $request->validate([
+            'name' => 'required',
+            'pass' => 'required|min:6',
+        ], [
+            'name.required' => 'Vui lòng nhập tên người dùng.',
+            'pass.required' => 'Vui lòng nhập mật khẩu.',
+            'pass.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
+        ]);
         if(Auth::attempt(['name'=>$request->name,'password'=>$request->pass,])){
             return  redirect()->route('index');
         }
@@ -99,17 +123,35 @@ class UserController extends Controller
                 ->where('posts.user_id',$id)
                 ->select('phongtro.*', 'phongtro.name', 'posts.*', 'images.image',)
                 ->orderBy('phongtro.phongtro_id', 'asc')
-                ->take(4)
+                ->take(6)
                 ->get();
         foreach($posts as $post){
             $post->content = Format::textShorten($post->content);
             $post->gia = Format::format_currency($post->gia);
+            $total_rating = $this->getTotalRating($post->phongtro_id);
+            $post->total_rating = $total_rating;
         }
-
-      
+        $posts = collect($posts)->sortByDesc(function ($post) {
+            return $post->total_rating->average_rating ?? 0; // Sắp xếp theo total_rating (lấy giá trị trung bình)
+        });
         
         return $posts;
     }
+    public function getTotalRating($phongtro_id)
+{
+    // Lấy tổng số đánh giá và sao trung bình từ cơ sở dữ liệu
+    $totalRating = DB::table('evaluates')
+        ->where('phongtro_id', $phongtro_id)
+        ->selectRaw('COUNT(*) as total_ratings, AVG(rating) as average_rating')
+        ->first();
+
+    // Kiểm tra nếu có dữ liệu
+    if ($totalRating) {
+        return $totalRating; // Trả về trực tiếp tổng số đánh giá và sao trung bình
+    } else {
+        return (object) ['average_rating' => 0, 'total_ratings' => 0]; // Nếu không có đánh giá nào
+    }
+}
     public function editProfile(){
      
         $user = DB::table('users')->where('user_id','=',Auth::user()->user_id)->first();
@@ -194,4 +236,16 @@ public function editAvt( Request $request ){
     }
    
 }
+public function destroy($id)
+{
+    $deleted = User::where('user_id', $id)->delete();
+
+    if ($deleted) {
+        return response()->json(['success' => 'Xóa thành công']);
+    }
+
+    return response()->json(['error' => 'Xóa thất bại'], 500);
+}
+
+
 }

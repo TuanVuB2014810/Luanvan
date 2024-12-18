@@ -136,7 +136,7 @@
             <tr>
                
                 <td colspan="3">
-                <button class="btn btn-success py-1"  type="submit" name="submit">Submit</button>
+                <button class="btn btn-success py-1"  type="submit" name="submit">Lưu</button>
                 </td>
             </tr>
            

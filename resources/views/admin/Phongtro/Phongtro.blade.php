@@ -10,7 +10,7 @@
 }
 
 @endif
-<div class="col-sm-4 d-flex">
+<!-- <div class="col-sm-4 d-flex">
             <form action="{{route('import')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
@@ -22,16 +22,16 @@
                     
                 </div>
             </form>
-        </div>
+        </div> -->
 <table class="table mt-3" id="post-table">
     <thead>
       <tr>
-        <th>STT</th>
-        <th> Tên phòng trọ </th>
-        <th>Số chỗ</th>
-        <th>Giá phòng</th>
-        <th>Giá nước / tháng</th>
-        <th>Giá điện / tháng</th>
+        <th  style="width: 1%;">STT</th>
+        <th  style="width: 26%;"> Tên phòng trọ </th>
+        <th  style="width: 10%;">Số chỗ</th>
+        <th  style="width: 15%;">Giá phòng</th>
+        <th  style="width: 15%;">Giá nước / tháng</th>
+        <th  style="width: 15%;">Giá điện / tháng</th>
      
        
         <th>Xem chi tiết</th>

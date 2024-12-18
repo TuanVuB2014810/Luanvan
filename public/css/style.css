@@ -268,7 +268,32 @@ a.sp_a>img {
 .fa-star.active {
     color: orange;
 }
-
+.line-through {
+    display: inline-block;
+    position: relative;
+    font-weight: bold; /* Tùy chọn: làm đậm chữ */
+    padding: 0 100px; /* Thêm khoảng cách để đường gạch có thể xuất hiện ở hai bên */
+  }
+  
+  .line-through::before,
+  .line-through::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%; /* Điều chỉnh chiều dài của các đường gạch */
+    height: 1px;
+    background-color: gray; /* Màu đường gạch */
+  }
+  
+  .line-through::before {
+    left: 0;
+    right: 10px;
+  }
+  
+  .line-through::after {
+    right: 0;
+  }
+  
 .danhgia_textarea {
     width: 100%;
     padding: 10px;
@@ -304,11 +329,11 @@ a.sp_a>img {
     border: 1px solid #ddd;
     overflow: hidden;
     margin-bottom: 20px;
-    height: 300px;
+    min-height: 350px;
 }
 
 .card-img-top-status {
-    height: 50%;
+    height: 150px;
     width: 300px;
     object-fit: cover;
     max-width: 100%;
@@ -329,12 +354,20 @@ a.sp_a>img {
 }
 
 .text-dt {
+    font-size: 14px;
     color: gray;
+    margin: 0px 0px 6px 0px ;
+}
+.text-dc {
+    font-size: 13px;
+    color: gray;
+    margin: 0px 0px 6px 0px ;
 }
 
 .text-price {
     color: #d22839;
     font-weight: bold;
+   
 }
 
 .btn-action {
@@ -375,6 +408,7 @@ a.sp_a>img {
 }
 .header_admin {
     height: 120px;
+    padding-top: 32px;
     background: linear-gradient(135deg, #8a2be2, #00ced1);
 }
 
@@ -443,7 +477,15 @@ a.sp_a>img {
     align-items: center;
     z-index: 10;
 }
-
+.total_start1{
+    font-size: 18px;
+    margin: 0px;
+}
+.total_start1 .messeva {
+    font-size: 14px;
+    color: #1d23d3;
+    padding-left: 5px;
+}
 .profile_name {
     padding-top: 0px;
 }
@@ -454,10 +496,22 @@ a.sp_a>img {
 
 .btn_login {
     border: 1px black solid;
-    margin-left: 2px;
+    
     margin-bottom: 5px;
 }
+.nut {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
 
+.vt{
+    position: absolute;
+    top:10%;
+}
+.center{
+    margin: 0px auto;
+}
 a>.btn_login:hover {
     border: 1px black solid;
     background-color: #f4f4f4;
@@ -568,9 +622,26 @@ select.form-select option:hover {
     justify-content: center;
     justify-items: center;
 }
+.total_evalute {
+    display: flex; /* Kích hoạt Flexbox */
+    flex-direction: column; /* Xếp các phần tử theo chiều dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    height: 100%; /* Chiều cao toàn phần */
+    text-align: center; /* Căn giữa nội dung văn bản */
+}
+#playStoreRatingChart {
+    height: 200px !important;
+    width: 100%; /* Giữ chiều rộng */
+}
+.text{
+    font-size: 32px;
+    text-align: center;
+    font-weight: 600;
 
-#total_start>.text {
-    padding-top: 4px;
+}
+#total_start {
+    padding-top: 2px;
 }
 
 #total_start>.messeva {
@@ -593,13 +664,13 @@ select.form-select option:hover {
     margin-top: 5px;
 }
 
-.running-border {
+.running-border , .running-border1 {
     position: relative;
     margin-top: 20px;
     padding-bottom: 5px;
 }
 
-.running-border::before {
+.running-border::before, .running-border1::before  {
     content: '';
     position: absolute;
     bottom: 0;
@@ -621,7 +692,7 @@ select.form-select option:hover {
     }
 }
 
-.running-border::after {
+.running-border::after, .running-border1::after  {
     content: '';
     position: absolute;
     bottom: 0;
@@ -631,7 +702,9 @@ select.form-select option:hover {
     background-color: red;
     z-index: 1;
 }
-
+.running-border1::after{
+    background: #0056b3;
+} 
 .inbox {
     border: 1px dark solid;
 }
@@ -858,6 +931,7 @@ a.navbarli:hover{
 }
 
 
+
 .pagination {
     justify-content: center; /* Đặt các liên kết phân trang ở giữa */
     margin-top: 20px; /* Khoảng cách trên */
@@ -896,4 +970,15 @@ a.navbarli:hover{
 .cuoi {
     text-decoration: none; /* Loại bỏ gạch chân */
     color: blue; /* Đổi màu liên kết nếu muốn */
+}
+
+.swal-button--cancel {
+    background-color: #0056b3 !important; 
+    color: white !important;
+}
+
+/* Tùy chỉnh màu cho nút Xóa */
+.swal-button--confirm {
+    background-color: red !important; /* Màu cam */
+    color: white !important;
 }

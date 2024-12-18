@@ -191,6 +191,8 @@ function initializeAddressFields() {
 
 function bang() {
     $('#post-table').DataTable({
+        
+        stateSave: true,
         // searching: false, // Tắt thanh tìm kiếm
         language: {
             "sProcessing": "Đang xử lý...",

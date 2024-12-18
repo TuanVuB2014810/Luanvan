@@ -12,7 +12,16 @@
 
        </div>
         @if(session()->has('msg_update'))
-        <p class="success_msg text-center">{{ session('msg_update') }}</p>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                    title: "Thành công",
+                    text: "{{ session('msg_update') }}",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                });
+            });
+        </script>
         @endif
         <form action="" method="post" onsubmit="return validateEditProfile()">
             @csrf
@@ -60,6 +69,7 @@
             </table>
         </form>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     function validateEditProfile() {
         var name = document.getElementById('name').value.trim();

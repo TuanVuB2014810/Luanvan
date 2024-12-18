@@ -6,10 +6,9 @@
 @endphp --}}
 {{-- <img src="{{ asset('storage/anh1.webp') }}" alt=""> --}}
 <div class="container-fluid row">
-
-    <h4 class="mt-5 py-2 px-2 col-12 text-center title">Cho thuê nhà trọ, phòng trọ đầy đủ tiện nghi</h4>
     <div class="col-sm-2"></div>
     <section class="section_qlbaidang  col-sm-6">
+    <h4 class="mt-5 py-2 px-2 col-12 text-center title">Cho thuê nhà trọ, phòng trọ đầy đủ tiện nghi</h4>
         <div class="bg-white text-dark mt-1 px-2 image-container" id="mainImageContainer">
             <!-- Khung hình chính -->
             <img class="rounded mx-auto d-block img_chinh" src="{{ asset('images/'.$post->image) }}" alt="Main Image"
@@ -78,55 +77,75 @@
         <div class="rating-container mt-1 px-2 bg-white text-dark my-2 py-1">
         @if($msg = Session::get('msge'))
             <script>
-                // Sử dụng SweetAlert để hiển thị thông báo
-                swal("Thông báo", "{{ $msg }}", "success");
+               swal({
+                title: "Thông báo", // Tiêu đề của thông báo
+                text: "{{ $msg }}", // Nội dung thông báo lấy từ biến PHP
+                icon: "success", // Biểu tượng thành công
+                buttons: {
+                    confirm: {
+                        text: "Đồng ý",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-success",
+                        closeModal: true
+                    }
+                }
+            });
             </script>
         @endif
-            <div class="total_evalute">
-                <h4 class="p-3"><b>Đánh giá {{ $post->content }}</b></h4>
-                <div class="rating-stars-show pt-2" id="total_start">
-                    <!-- Hiển thị sao trung bình và tổng số đánh giá -->
-                    <span class="px-2 text">{{ round($total_rating->average_rating, 1) }}</span>
-                    <span class="fa fa-star total_show py-1"></span>
-                    <span class="fa fa-star total_show py-1"></span>
-                    <span class="fa fa-star total_show py-1"></span>
-                    <span class="fa fa-star total_show py-1"></span>
-                    <span class="fa fa-star total_show py-1"></span>
-                    <span class="messeva"> {{ $total_rating->total_ratings }} đánh giá</span>
+        <div class="row">
+        <h4 class="p-3"><b>Đánh giá {{ $post->content }}</b></h4>
+            <div class="col-lg-4">
+                <div class="total_evalute" id="total_start">
+                    <div class="px-2 text">{{ round($total_rating->average_rating, 1) }}</div>
+                    <div class="rating-stars-show pt-2">
+                        <span class="fa fa-star total_show py-1"></span>
+                        <span class="fa fa-star total_show py-1"></span>
+                        <span class="fa fa-star total_show py-1"></span>
+                        <span class="fa fa-star total_show py-1"></span>
+                        <span class="fa fa-star total_show py-1"></span>
+                        
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const ratingStarsShow = document.getElementById('total_start');
+                            const starsShow = ratingStarsShow.querySelectorAll('.total_show');
+                            const ratingValue = parseFloat("{{ $total_rating->average_rating }}"); // Lấy giá trị rating từ PHP
+
+                            showStars(ratingValue, starsShow); // Gọi hàm hiển thị sao
+
+                            function showStars(rating, stars) {
+                                const fullStars = Math.floor(rating); // Số nguyên của rating (số sao đầy)
+                                const halfStar = (rating % 1 !== 0); // Kiểm tra nếu có nửa sao
+
+                                stars.forEach((star, i) => {
+                                    if (i < fullStars) {
+                                        // Nếu sao là đầy
+                                        star.classList.add('active');
+                                        star.style.color = 'orange';
+                                    } else if (halfStar && i === fullStars) {
+                                        // Nếu có nửa sao
+                                        star.classList.add('active');
+                                        star.style.color = 'orange';
+                                        star.classList.add('fa-star-half-alt'); // Thêm class nửa sao
+                                    } else {
+                                        // Những sao còn lại không được kích hoạt
+                                        star.style.color = '#dddddd';
+                                    }
+                                });
+                            }
+                        });
+                    </script>
+
+
                 </div>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const ratingStarsShow = document.getElementById('total_start');
-                        const starsShow = ratingStarsShow.querySelectorAll('.total_show');
-                        const ratingValue = parseFloat("{{ $total_rating->average_rating }}"); // Lấy giá trị rating từ PHP
-
-                        showStars(ratingValue, starsShow); // Gọi hàm hiển thị sao
-
-                        function showStars(rating, stars) {
-                            const fullStars = Math.floor(rating); // Số nguyên của rating (số sao đầy)
-                            const halfStar = (rating % 1 !== 0); // Kiểm tra nếu có nửa sao
-
-                            stars.forEach((star, i) => {
-                                if (i < fullStars) {
-                                    // Nếu sao là đầy
-                                    star.classList.add('active');
-                                    star.style.color = 'orange';
-                                } else if (halfStar && i === fullStars) {
-                                    // Nếu có nửa sao
-                                    star.classList.add('active');
-                                    star.style.color = 'orange';
-                                    star.classList.add('fa-star-half-alt'); // Thêm class nửa sao
-                                } else {
-                                    // Những sao còn lại không được kích hoạt
-                                    star.style.color = '#dddddd';
-                                }
-                            });
-                        }
-                    });
-                </script>
-
-
             </div>
+            <div class="col-lg-8">
+                <canvas id="playStoreRatingChart" data-maphong="{{$post->maphong}}"></canvas>
+            </div>
+            <div class="col-lg-1"></div>
+        </div>
+            <hr class="mt-5">
             <h3 class="text-center">Đánh Giá</h3>
             <form action="/danhgia-phongtro/{{ $post->phongtro_id }}" method="POST" id="ratingForm">
                 @csrf
@@ -210,7 +229,7 @@
         </table>
     </section>
     <section class="col-sm-3">
-        <div class="mt-1 px-2 bg-white text-dark row">
+        <div class="px-2 bg-white text-dark row" style="margin-top: 100px">
             <h5 class="col-12 mb-2 "><strong> Người cho thuê </strong></h5>
             <div href="" class="col-6 avatar-container li-avt ">
                 <div class="rounded-avatar">
@@ -400,7 +419,20 @@
             data: formData,
             success: function (response) {
                 if (response.status === 'success') {
-                    swal(response.message);
+                    swal({
+                        title: "Thành công", // Tiêu đề của thông báo
+                        text: response.message, // Nội dung thông báo lấy từ response.message
+                        icon: "success", // Biểu tượng thành công
+                        buttons: {
+                            confirm: {
+                                text: "Đồng ý",
+                                value: true,
+                                visible: true,
+                                className: "btn btn-success",
+                                closeModal: true
+                            }
+                        }
+                    });
                     $('#ratingForm')[0].reset(); // Reset lại form
                     $('.rating_star').removeClass('checked'); // Bỏ nổi bật các sao
 
@@ -434,14 +466,53 @@
                     // Cập nhật số sao trung bình và tổng số đánh giá sau khi đánh giá thành công
                     updateTotalRating();
                 } else if (response.status === 'exists') {
-                    swal(response.message);
+                   swal({
+                        title: "Cảnh báo", // Tiêu đề Cảnh báo
+                        text: response.message, // Nội dung thông báo lấy từ response.message
+                        icon: "warning", // Biểu tượng cảnh báo
+                        buttons: {
+                            confirm: {
+                                text: "Đồng ý",
+                                value: true,
+                                visible: true,
+                                className: "btn btn-warning",
+                                closeModal: true
+                            }
+                        }
+                    });
                 } else if (response.status === 'unauthenticated') {
-                    swal(response.message);
+                   swal({
+                    title: "Lỗi", // Tiêu đề lỗi
+                    text: response.message, // Nội dung thông báo lấy từ response.message
+                    icon: "warning", // Biểu tượng lỗi
+                    buttons: {
+                        confirm: {
+                            text: "Đồng ý",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-warning",
+                            closeModal: true
+                        }
+                    }
+                });
                     window.location.href = '/login'; // Điều hướng tới trang đăng nhập
                 }
             },
             error: function (error) {
-                swal('Đã xảy ra lỗi, vui lòng thử lại.');
+                swal({
+                    title: "Lỗi", // Tiêu đề lỗi
+                    text: response.message, // Nội dung thông báo lấy từ response.message
+                    icon: "error", // Biểu tượng lỗi
+                    buttons: {
+                        confirm: {
+                            text: "Đồng ý",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-danger",
+                            closeModal: true
+                        }
+                    }
+                });
             }
         });
     });
@@ -521,4 +592,134 @@
         });
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Lấy mã phòng từ data-maphong của thẻ canvas
+    const canvas = document.getElementById('playStoreRatingChart');
+    const ctx = canvas.getContext('2d');
+    const maPhong = canvas.dataset.maphong; // Lấy giá trị 'data-maphong'
+
+    let chart; // Biến để lưu đối tượng biểu đồ
+
+    // Hàm để gọi API và cập nhật dữ liệu cho biểu đồ
+    function fetchAndUpdateChart() {
+        // Gọi API với mã phòng trọ
+        fetch(`/rating-data/${maPhong}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data); // Kiểm tra dữ liệu trả về từ API
+
+                // Chuẩn bị dữ liệu cho biểu đồ
+                const chartData = {
+                    labels: ['5', '4', '3', '2', '1'],
+                    datasets: [{
+                        label: 'Số lượng đánh giá',
+                        data: [
+                            data.five_star || 0,
+                            data.four_star || 0,
+                            data.three_star || 0,
+                            data.two_star || 0,
+                            data.one_star || 0
+                        ],
+                        backgroundColor: 'orange',
+                        borderColor: 'orange',
+                        borderWidth: 1,
+                        borderRadius: {
+                            topLeft: 10,
+                            bottomLeft: 10,
+                            topRight: 10,
+                            bottomRight: 10
+                        },
+                        borderSkipped: false,
+                        barThickness: 12,
+                        maxBarThickness: 12
+                    }]
+                };
+
+                // Nếu biểu đồ đã tồn tại, cập nhật lại dữ liệu và làm mới
+                if (chart) {
+                    chart.data = chartData;
+                    chart.update(); // Cập nhật lại biểu đồ
+                } else {
+                    // Cấu hình biểu đồ
+                    const chartOptions = {
+                        indexAxis: 'y',
+                        layout: {
+                            padding: {
+                                top: 10,
+                                bottom: 10,
+                                left: 0,
+                                right: 30
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: false,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                },
+                                border: {
+                                    display: false
+                                },
+                                ticks: {
+                                    display: true,
+                                    color: '#000',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: true
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'right',
+                                color: '#000',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                formatter: (value) => `${value}`,
+                                padding: {
+                                    right: 5
+                                }
+                            }
+                        }
+                    };
+                    Chart.register(ChartDataLabels);
+                    // Khởi tạo biểu đồ nếu chưa có
+                    chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: chartData,
+                        options: chartOptions
+                    });
+                }
+            })
+            .catch(error => console.error('API Error:', error));
+    }
+
+    // Gọi hàm lần đầu để hiển thị biểu đồ
+    fetchAndUpdateChart();
+
+    // Nếu bạn muốn cập nhật tự động sau một khoảng thời gian (ví dụ 5 giây)
+    setInterval(fetchAndUpdateChart, 5000); // Cập nhật mỗi 5 giây
+});
+</script>
+
+
+
 @endsection

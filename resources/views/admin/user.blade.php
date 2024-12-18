@@ -15,7 +15,7 @@
         <th> Email</th>
         <th>Số Điện Thoại</th>
         <th>Loại tài khoản</th>
-
+        <th>Thao tác</th>
       </tr>
     </thead>
     <tbody>
@@ -23,7 +23,7 @@
        $i=1;
       @endphp
         @foreach ($users as $user)
-        <tr>
+        <tr id="user-row-{{ $user->user_id }}">
             <td>{{$i++}}</td>
             <td>{{ $user->name }}</td>
             <td>{{ $user->city}}</td>
@@ -36,7 +36,11 @@
             @else
             <td>Đăng ký</td>
             @endif
-            
+            <td class="d-flex">
+            <button class="btn btn-danger delete-user" data-id="{{ $user->user_id }}">
+                <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+            </button>
+            </td>
         </tr>
       
         @endforeach
@@ -45,7 +49,20 @@
   <script>
   $(document).ready(function () {
       bang(); // Gọi hàm bang() để khởi tạo DataTable
+      $('.delete-user').on('click', function (e) {
+        e.preventDefault(); // Ngăn hành động mặc định
+        const userId = $(this).data('id'); // Lấy ID người dùng từ nút
+        const url = `/admin/ql_taikhoan/delete/${userId}`; // Tạo URL xóa
+
+        delete_dt(url, userId);
+    });
   });
 </script>
+<script>
+    // Hàm xóa người dùng
+
+
+
+
 @endsection
     

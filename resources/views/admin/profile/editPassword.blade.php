@@ -11,7 +11,16 @@
 
        </div>
         @if(session()->has('msg_success'))
-                <p class="success_msg text-center my-0 my-0">{{ session('msg_success') }}</p><br>
+        <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        Swal.fire({
+            title: "Thành công",
+            text: "{{ session('msg_success') }}",
+            icon: "success",
+            confirmButtonText: "OK"
+        });
+    });
+</script>
         @endif
         <div class=" row d-flex justify-content-center">
             <form action="" method="post" id="changePasswordForm" class="" onsubmit="return validatePasswordForm()">
@@ -22,17 +31,26 @@
                     <span class="input-group-text" id="addon-wrapping"><i class="fa-solid fa-unlock"></i></span>
                     <input type="password" class="form-control login_ttk" id="currentPassword" name="currentPassword"
                         placeholder="Xác nhận mập khẩu" required>
+                    <span class="input-group-text toggle-password-toggle" style="cursor: pointer;">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
                 </div>
 
                 <div class="input-group flex-nowrap login_ttk mt-3">
                     <span class="input-group-text" id="addon-wrapping"><i class="fa-solid fa-unlock"></i></span>
                     <input type="password" class="form-control login_ttk" id="newPassword" name="newPassword"
                         placeholder="Mập khẩu mới" required>
+                    <span class="input-group-text toggle-password-toggle" style="cursor: pointer;">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
                 </div>
                 <div class="input-group flex-nowrap login_ttk mt-3">
                     <span class="input-group-text" id="addon-wrapping"><i class="fa-solid fa-unlock"></i></span>
                     <input type="password" class="form-control login_ttk" id="confirmPassword"
                         placeholder="Nhập lại mật khẩu mới" name="confirmPassword" required>
+                    <span class="input-group-text toggle-password-toggle" style="cursor: pointer;">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
                 </div>
                 @if(session()->has('msg_err'))
                 <span class="error">{{ session('msg_err') }}</span><br>
@@ -49,4 +67,5 @@
 
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

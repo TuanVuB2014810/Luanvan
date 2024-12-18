@@ -17,9 +17,14 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="shortcut icon" href="{{ asset('images/chungcu.svg') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.20.0/dist/plotly.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
 
     <!-- Tải jQuery trước -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/gh/vietblogdao/js/districts.min.js"></script>
     
     <!-- Tải Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
@@ -29,12 +34,12 @@
 
     <!-- Tải DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+    <script src="{{ asset('js/main.js') }}"></script>
     <title>Quản lý nhà trọ</title>
 </head>
 
 <body>
-    <header class="container-fluid header_admin navbar-fixed-top">
+    <header class="container-fluid header_admin navbar-fixed-top ">
 
         <nav class="navbar navbar-expand-sm navbar-dark  d-flex justify-content-around">
 
@@ -92,7 +97,7 @@
                     <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 min-vh-100 menu_w">
                         <a
                             class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-dark text-dark   text-decoration-none">
-                            <span class="fs-5 d-none d-sm-inline mx-3">Menu</span>
+                            <span class="d-none d-sm-inline mx-3 running-border1" style="font-size: 1.75rem !important; ">Menu</span>
                         </a>
                         <ul class="nav nav-pills text-dark flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
                             id="menu">
@@ -102,6 +107,7 @@
                             <div class="w-90"><a class="btn btn_menu" href="/admin/ql_dangbai">Quản lý bài đăng</a>
                             </div>
                             <div class="w-90"><a class="btn btn_menu" href="/admin/ql_user">Quản lý người dùng</a></div>
+                            <div class="w-90"><a class="btn btn_menu" href="/admin/ql_danhgia">Quản lý đánh giá</a></div>
                             <div class="w-90"><a class="btn btn_menu" href="/admin/thong-ke">Thống kê</a></div>
                         </ul>
 
@@ -109,7 +115,7 @@
 
                     </div>
                 </div>
-                <div class="col-sm m-5">
+                <div class="col-sm-9" style="margin: 20px auto">
 
                     @yield('content')
                     @yield('danhsach_phongtro')
@@ -124,8 +130,73 @@
 <script src="{{ asset('js/jquery.min.js') }}"></script>
 <!-- Tải jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <!-- Tải DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    // Lấy tất cả các phần tử toggle mật khẩu
+    const togglePasswordToggles = document.querySelectorAll('.toggle-password-toggle');
 
+    togglePasswordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function () {
+            // Tìm input kế bên của toggle
+            const passwordField = this.previousElementSibling;
+            const eyeIcon = this.querySelector('i');
+
+            // Kiểm tra trạng thái hiện tại của input
+            if (passwordField.type === 'password') {
+                // Hiển thị mật khẩu
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                // Ẩn mật khẩu
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+    });
+</script>
+<script>
+    function delete_dt(url, Id) {
+    // Hiển thị hộp thoại xác nhận với SweetAlert
+    swal({
+        title: "Bạn có thật sự muốn xóa?",
+        text: "Thao tác này không thể hoàn tác!",
+        icon: "warning",
+        buttons: ["Hủy", "Xóa"],
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
+            // Gửi yêu cầu AJAX để xóa
+            $.ajax({
+                url: url, // Đường dẫn API
+                type: 'DELETE', // Phương thức xóa
+                data: {
+                    _token: '{{ csrf_token() }}', // Token CSRF để bảo mật
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Xóa hàng HTML khỏi giao diện
+                        $(`#user-row-${Id}`).fadeOut('slow', function () {
+                            $(this).remove();
+                        });
+
+                        // Hiển thị thông báo thành công
+                        swal("Thành công", response.success, "success");
+                    }
+                },
+                error: function (xhr) {
+                    // Hiển thị lỗi từ server
+                    swal("Lỗi", xhr.responseJSON?.error || "Đã xảy ra lỗi. Không thể xóa.", "error");
+                }
+            });
+        }
+    });
+}
+</script>
 </html>

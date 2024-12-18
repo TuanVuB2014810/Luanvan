@@ -34,6 +34,7 @@
                         </a>
                         <div class="card-body card-body-status">
                         <p class="card-title">{{ $p->content }}</p>
+                       
                             <p class="card-text text-dt">{{ $p->dientich }} m²</p>
                             <h6 class="card-subtitle mb-2  text-price">{{ $p->gia }}</h6>
                         </div>

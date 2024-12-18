@@ -51,9 +51,18 @@
                     <td colspan="2"> <input type="submit" class="btn btn-outline-success mt-2 py-1" id="themmoi"
                             name="save" value="Cập nhật"></td>
                     <td class="mt-2">
-                        @if(session()->has('msg_update'))
-                        <span class="success_msg text-center">{{ session('msg_update') }}</span>
-                        @endif
+                    @if(session()->has('msg_update'))
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                Swal.fire({
+                                    title: "Thành công",
+                                    text: "{{ session('msg_update') }}",
+                                    icon: "success",
+                                    confirmButtonText: "OK"
+                                });
+                            });
+                        </script>
+                    @endif
                     </td>
                 </tr>
             </table>

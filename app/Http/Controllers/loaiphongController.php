@@ -49,15 +49,15 @@ class loaiphongController extends Controller
         return redirect('/admin/ql_loai')->with('msg', 'Chỉnh sửa thành công');
 
     }
-    public function destroy($id){
-        $loai = new loaiphong();
-        $loai = $loai::where('id',$id)->delete();
-        // $loai->delete();
-        // dd($id);;
-        $msg = "Xóa thành công";
-         return redirect()->back()->with('msg', $msg);
 
-    
+    public function destroy($id)
+    {
+        $deleted = loaiphong::where('id', $id)->delete();
+
+        if ($deleted) {
+            return response()->json(['success' => 'Xóa thành công']);
+        }
+
+        return response()->json(['error' => 'Xóa thất bại'], 500);
     }
-
 }

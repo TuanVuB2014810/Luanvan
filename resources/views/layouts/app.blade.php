@@ -10,7 +10,7 @@
     <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@14.6.4/distribute/nouislider.min.css">
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -39,38 +39,29 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse row" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 row col-lg-7 navbar_ul_search">
+                    <ul class="navbar-nav me-4 mb-2 mb-lg-0 row col-lg-4 navbar_ul_search">
                         <li class="nav-item active col-lg-3 py-3 li_a trang_chu">
                             <a href="{{ route('index') }}" class="nav-link a_icon text-center"><i class="fa fa-house mx-1"></i>
                                 Trang chủ</a>
                         </li>
-                        <li class="nav-item col-lg-3 py-3 about ">
+                        <li class="nav-item col-lg-4 py-3 about ">
                             <a href="/about" class="nav-link a_icon text-center ">
                                 <i class="fa fa-book mx-1"></i>Giới Thiệu
                             </a>
                         </li>
-                        <form action="/tim-kiem" class="col-lg-5" action="" method="POST">
-
-                            @csrf
-                            @method('POST')
-                            <div class="input-group search_div w-100 m-2">
-                                <input type="search" id="inputField1" class="form-control" name="tukhoa"
-                                    placeholder="Tìm kiếm nhà trọ" aria-label="Recipient's username"
-                                    aria-describedby="button-addon2" autocomplete="off">
-                                <input class="btn btn-outline-danger" name="timkiem_sp" type="submit" value="Tìm"
-                                    id="button-addon2">
-                            </div>
-                            <div id="suggestion-box" class="dropdown-menu" style="display: none;">
-                                <!-- resources/views/search/suggestions.blade.php -->
-
-                            </div>
-
-                        </form>
-
                     </ul>
+                    <form action="/tim-kiem" class="col-lg-3 mt-3 d-flex justify-content-between" method="GET">
+                            @csrf
+                            <div class="input-group search_div w-100 m-2">
+                                <input type="search" id="inputField1" class="form-control" name="query" placeholder="Tìm kiếm nhà trọ" 
+                                    aria-label="Tìm kiếm" aria-describedby="button-addon2" autocomplete="off">
+                                <input class="btn btn-outline-danger" name="timkiem_sp" type="submit" value="Tìm" id="button-addon2">
+                            </div>
+                            <div id="suggestion-box" class="dropdown-menu" style="display: none;"></div>
+                        </form>
                     <ul class="d-flex navbar-nav me-auto mb-2 mb-lg-0 row col-lg-5 nav_manager_post">
 
-                        <li class="nav-item col-lg-5 py-3 mx-1 baidang">
+                        <li class="nav-item col-lg-5 py-3  baidang">
 
                             <a href="{{ route('bai_dang') }}" class="nav-link a_icon  li_a text-center">
                                 <i class="fa-solid fa-list mx-1"></i>
@@ -172,6 +163,7 @@
         Chatbot
         <span id="close-chat" style="cursor: pointer; float: right;">&times;</span>
     </div>
+    <button onclick="clearChatHistory()">Xóa lịch sử trò chuyện</button>
     <div id="chat-content"></div>
     <div id="chat-input">
         <input type="text" id="userMessage" placeholder="Nhập tin nhắn..." />
@@ -336,8 +328,11 @@ function loadChatHistory() {
         document.getElementById("chat-content").innerHTML = savedChat;
     }
 }
-
-// Tải lại lịch sử cuộc trò chuyện khi trang được mở lại
+function clearChatHistory() {
+    localStorage.removeItem("chatHistory");
+    document.getElementById("chat-content").innerHTML = ""; // Xóa nội dung trong phần hiển thị
+}
+// // Tải lại lịch sử cuộc trò chuyện khi trang được mở lại
 window.onload = loadChatHistory;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
@@ -371,42 +366,230 @@ window.onload = loadChatHistory;
     });
 </script>
 <script>
-    $(document).ready(function() {
-        $('#inputField1').keyup(function() {
-            var query = $(this).val();
-            if (query != '') {
-                $.ajax({
-                    url: "{{ route('search.suggestions') }}",
-                    method: "GET",
-                    data: {
-                        query: query
-                    },
-                    success: function(data) {
-                        $('#suggestion-box').empty();
-                        var suggestions = data.suggestions;
-                        if (suggestions.length > 0) {
-                            var suggestionList = '<ul>';
-                            suggestions.forEach(function(suggestion) {
-                                suggestionList += '<li class="px-2">' + suggestion + '</li>';
-                            });
-                            suggestionList += '</ul>';
-                            $('#suggestion-box').append(suggestionList);
-                            $('#suggestion-box').fadeIn();
-                        } else {
-                            $('#suggestion-box').fadeOut();
-                        }
+    // gợi ý tìm kiếm
+   $(document).ready(function() {
+    $('#inputField1').on('keyup', function() {
+        var query = $(this).val();
+
+        // Nếu query không rỗng
+        if (query.length > 0) {
+            $.ajax({
+                url: '{{ route('search.suggestions') }}', 
+                method: 'GET',
+                data: { query: query },
+                success: function(response) {
+                    var suggestions = response.suggestions;
+
+                    // Xóa các gợi ý cũ
+                    $('#suggestion-box').empty();
+
+                    // Nếu có gợi ý, hiển thị nó
+                    if (suggestions.length > 0) {
+                        $('#suggestion-box').show();
+                        suggestions.forEach(function(suggestion) {
+                            $('#suggestion-box').append('<a href="javascript:void(0);" class="dropdown-item suggestion-item">' + suggestion + '</a>');
+                        });
+                    } else {
+                        $('#suggestion-box').hide();
                     }
-                });
+                }
+            });
+        } else {
+            $('#suggestion-box').hide();
+        }
+    });
+
+    // Khi người dùng click vào một gợi ý, ô tìm kiếm sẽ tự động điền giá trị và gửi form
+    $(document).on('click', '.suggestion-item', function() {
+        var suggestion = $(this).text();
+        $('#inputField1').val(suggestion); // Điền giá trị vào ô input
+        $(this).closest('form').submit(); // Gửi form để tìm kiếm
+    });
+});
+
+
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+<script>
+    // Lấy tất cả các phần tử toggle mật khẩu
+    const togglePasswordToggles = document.querySelectorAll('.toggle-password-toggle');
+
+    togglePasswordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function () {
+            // Tìm input kế bên của toggle
+            const passwordField = this.previousElementSibling;
+            const eyeIcon = this.querySelector('i');
+
+            // Kiểm tra trạng thái hiện tại của input
+            if (passwordField.type === 'password') {
+                // Hiển thị mật khẩu
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
             } else {
-                $('#suggestion-box').fadeOut();
+                // Ẩn mật khẩu
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
             }
-        });
-        $(document).on('click', 'li', function() {
-            $('#inputField1').val($(this).text());
-            $('#suggestion-box').fadeOut();
         });
     });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script>
+    function delete_dt(url, Id) {
+    // Hiển thị hộp thoại xác nhận với SweetAlert
+    swal({
+        title: "Bạn có thật sự muốn xóa?",
+        text: "Thao tác này không thể hoàn tác!",
+        icon: "warning",
+        buttons: ["Hủy", "Xóa"],
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
+            // Gửi yêu cầu AJAX để xóa
+            $.ajax({
+                url: url, // Đường dẫn API
+                type: 'DELETE', // Phương thức xóa
+                data: {
+                    _token: '{{ csrf_token() }}', // Token CSRF để bảo mật
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Xóa hàng HTML khỏi giao diện
+                        $(`#user-row-${Id}`).fadeOut('slow', function () {
+                            $(this).remove();
+                        });
+
+                        // Hiển thị thông báo thành công
+                        swal("Thành công", response.success, "success");
+                    }
+                },
+                error: function (xhr) {
+                    // Hiển thị lỗi từ server
+                    swal("Lỗi", xhr.responseJSON?.error || "Đã xảy ra lỗi. Không thể xóa.", "error");
+                }
+            });
+        }
+    });
+}
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ratingItems = document.querySelectorAll('.btn');
+
+    ratingItems.forEach(function(item) {
+        const ratingStars = item.querySelectorAll('.rating_star');
+        const averageRating = parseFloat(item.getAttribute('data-rating'));  // Lấy giá trị trung bình từ data-attribute
+
+        // Hàm để tô màu các sao
+        function highlightStars(rating) {
+            const fullStars = Math.floor(rating);  // Số sao đầy
+            const halfStar = (rating % 1) >= 0.5;  // Kiểm tra sao nửa nếu có
+
+            // Lặp qua từng sao để tô màu
+            ratingStars.forEach((star, index) => {
+                if (index < fullStars) {
+                    // Tô sao đầy màu cam
+                    star.style.color = 'orange';
+                } else if (index === fullStars && halfStar) {
+                    star.classList.remove('fa-star', 'fa-star-o');
+                    star.classList.add('fa-star-half-alt');
+                    star.style.color = 'orange';   // Có thể thay đổi màu nếu cần
+                } else {
+                    // Tô sao trống màu xám
+                    star.style.color = '#dddddd';
+                }
+            });
+        }
+
+        // Tô màu các sao khi trang được tải
+        highlightStars(averageRating);
+    });
+});
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const ratingItems = document.querySelectorAll('.rating-stars-show');
+
+    ratingItems.forEach(function(item) {
+        const ratingStars = item.querySelectorAll('.rating_star');
+        const averageRating = parseFloat(item.getAttribute('data-rating')); // Lấy giá trị trung bình từ data-attribute
+
+        // Hàm để tô màu các sao
+        function highlightStars(rating) {
+            const fullStars = Math.floor(rating); // Số sao đầy
+            const halfStar = (rating % 1) >= 0.5; // Kiểm tra sao nửa nếu có
+
+            // Lặp qua từng sao để tô màu
+            ratingStars.forEach((star, index) => {
+                if (index < fullStars) {
+                    star.style.color = 'orange'; // Tô màu sao đầy
+                } else if (index === fullStars && halfStar) {
+                    star.classList.remove('fa-star', 'fa-star-o');
+                    star.classList.add('fa-star-half-alt'); // Tô sao nửa
+                    star.style.color = 'orange';
+                } else {
+                    star.style.color = '#dddddd'; // Tô màu sao trống
+                }
+            });
+        }
+
+        // Tô màu các sao khi trang được tải
+        if (!isNaN(averageRating)) {
+            highlightStars(averageRating);
+        }
+    });
+});
+
+function confirmAjaxAction(event, message) {
+    event.preventDefault(); // Ngăn hành động mặc định của thẻ <a>
+    const url = event.target.closest('a').dataset.url; // Lấy URL từ thuộc tính `data-url`
+
+    Swal.fire({
+        title: 'Xác nhận',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gửi AJAX request
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: {
+                    _token: '{{ csrf_token() }}', // Gửi token bảo mật
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Thành công',
+                        text: response.message || 'Cập nhật thành công!',
+                        icon: 'success'
+                    }).then(() => {
+                        location.reload(); // Reload lại trang nếu cần
+                    });
+                },
+                error: function(error) {
+                    Swal.fire({
+                        title: 'Lỗi',
+                        text: error.responseJSON.message || 'Đã xảy ra lỗi. Vui lòng thử lại.',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+    });
+}
+
+</script>
 
 </html>
